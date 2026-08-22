@@ -25,7 +25,7 @@ const Home = () => {
   const fetchVehicles = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/vehicles"
+        "http://https://car-dealership-backend-wd20.onrender.com/api/vehicles"
       );
 
       setVehicles(response.data.vehicles);

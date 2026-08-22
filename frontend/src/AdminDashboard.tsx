@@ -37,7 +37,7 @@ function AdminDashboard({
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/vehicles"
+        "http://https://car-dealership-backend-wd20.onrender.com/api/vehicles"
       );
 
       const data = await response.json();
@@ -75,7 +75,7 @@ function AdminDashboard({
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/vehicles",
+        "http://https://car-dealership-backend-wd20.onrender.com/api/vehicles",
         {
           method: "POST",
           headers: {
@@ -135,7 +135,7 @@ function AdminDashboard({
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/vehicles/${id}`,
+        `http://https://car-dealership-backend-wd20.onrender.com/api/vehicles/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -171,7 +171,7 @@ function AdminDashboard({
   const restockVehicle = async (id: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/vehicles/${id}/restock`,
+        `http://https://car-dealership-backend-wd20.onrender.com/api/vehicles/${id}/restock`,
         {
           method: "POST",
           headers: {
