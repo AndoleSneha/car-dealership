@@ -1,0 +1,85 @@
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const Login = () => {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      localStorage.setItem("token", response.data.token);
+
+      setMessage("Login successful!");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
+    } catch (error: any) {
+      setMessage(
+        error.response?.data?.message || "Login failed"
+      );
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Car Dealership</h1>
+
+        <h2>Login</h2>
+
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button type="submit">
+            Login
+          </button>
+        </form>
+
+        {message && (
+          <p className="message">{message}</p>
+        )}
+
+        <p>
+          Don't have an account?{" "}
+          <span
+            className="link"
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

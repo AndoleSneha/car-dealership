@@ -1,0 +1,793 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+/* =========================================
+   MAIN APP
+========================================= */
+
+.app {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, #eef4ff 0, transparent 35%),
+    #f5f7fb;
+}
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+  min-height: 72px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 3px 15px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.navbar h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #111827;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-nav-button,
+.logout-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 17px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.admin-nav-button {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.admin-nav-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.24);
+}
+
+.logout-button {
+  background: #111827;
+  color: white;
+}
+
+.logout-button:hover {
+  background: #374151;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.container {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+  padding: 45px 0 55px;
+}
+
+/* =========================================
+   PAGE HEADING
+========================================= */
+
+.page-heading {
+  margin-bottom: 30px;
+}
+
+.page-heading h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  color: #111827;
+}
+
+.page-heading p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* =========================================
+   FILTER BOX
+========================================= */
+
+.filter-box {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 14px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr auto;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.filter-group input,
+.filter-group select {
+  height: 45px;
+  width: 100%;
+  padding: 0 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #111827;
+  font-size: 14px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.filter-group input::placeholder {
+  color: #9ca3af;
+}
+
+.filter-group input:hover,
+.filter-group select:hover {
+  border-color: #9ca3af;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+.clear-button {
+  height: 45px;
+  padding: 0 19px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.clear-button:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.success-message,
+.error-message {
+  padding: 13px 16px;
+  border-radius: 9px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.success-message {
+  background: #ecfdf3;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.error-message {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* =========================================
+   VEHICLE GRID
+========================================= */
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.vehicle-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.055);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+  overflow: hidden;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-5px);
+  border-color: #dbeafe;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+.vehicle-icon {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  border-radius: 14px;
+  font-size: 34px;
+  margin-bottom: 17px;
+}
+
+.vehicle-card h3 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 750;
+  color: #111827;
+}
+
+.vehicle-details {
+  border-top: 1px solid #f0f1f3;
+  padding-top: 12px;
+}
+
+.vehicle-details p {
+  margin: 10px 0;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.vehicle-details strong {
+  color: #374151;
+}
+
+.vehicle-price {
+  font-size: 23px !important;
+  font-weight: 800;
+  color: #2563eb !important;
+  margin: 15px 0 !important;
+}
+
+.in-stock {
+  color: #16a34a;
+  font-weight: 800;
+}
+
+.low-stock {
+  color: #d97706;
+  font-weight: 800;
+}
+
+.out-stock {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.purchase-button {
+  width: 100%;
+  margin-top: 17px;
+  height: 45px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.2);
+}
+
+.purchase-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.purchase-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   NO RESULTS
+========================================= */
+
+.no-results {
+  background: white;
+  border-radius: 14px;
+  padding: 65px 20px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+.no-results h3 {
+  margin: 0 0 8px;
+  color: #374151;
+  font-size: 20px;
+}
+
+.no-results p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.result-count {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 30px;
+}
+
+/* =========================================
+   LOGIN PAGE
+========================================= */
+
+.login-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      #dbeafe 0,
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      #e0e7ff 0,
+      transparent 30%
+    ),
+    #f5f7fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.11);
+}
+
+.login-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin: 0 auto 17px;
+}
+
+.login-card h1 {
+  text-align: center;
+  margin: 0 0 28px;
+  color: #111827;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.login-card h2 {
+  margin: 0 0 7px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.login-subtitle {
+  margin: 0 0 23px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.login-form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.login-form-group input {
+  width: 100%;
+  height: 46px;
+  padding: 0 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.login-form-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+.login-button {
+  width: 100%;
+  height: 47px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 5px;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.22);
+}
+
+.login-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin: 23px 0 0;
+}
+
+.auth-switch button {
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.auth-switch button:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   ADMIN DASHBOARD
+========================================= */
+
+.admin-container {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, #eef4ff 0, transparent 32%),
+    #f5f7fb;
+  padding: 40px 5%;
+}
+
+.admin-header {
+  background: white;
+  border-radius: 14px;
+  padding: 26px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.admin-header h1 {
+  margin: 0 0 5px;
+  color: #111827;
+  font-size: 28px;
+}
+
+.admin-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.back-button {
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: white;
+  padding: 11px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+.back-button:hover {
+  background: #374151;
+  transform: translateY(-1px);
+}
+
+.admin-message {
+  background: #ecfdf3;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 13px 16px;
+  border-radius: 9px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* =========================================
+   ADD VEHICLE
+========================================= */
+
+.admin-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.add-vehicle-button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.add-vehicle-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+.add-vehicle-form {
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.add-vehicle-form h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #111827;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.admin-form-group input,
+.admin-form-group select {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+}
+
+.admin-form-group input:focus,
+.admin-form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.save-vehicle-button {
+  width: 100%;
+  padding: 13px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.save-vehicle-button:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.inventory-title {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 25px;
+  color: #111827;
+}
+
+.admin-card-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+  .filter-box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vehicle-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar {
+    padding: 12px 18px;
+    min-height: 68px;
+  }
+
+  .navbar h1 {
+    font-size: 20px;
+  }
+
+  .navbar-actions {
+    gap: 6px;
+  }
+
+  .admin-nav-button,
+  .logout-button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .container {
+    padding: 28px 0 40px;
+  }
+
+  .page-heading h2 {
+    font-size: 27px;
+  }
+
+  .filter-box {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .vehicle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .login-card {
+    padding: 30px 23px;
+  }
+}
+
+@media (max-width: 450px) {
+  .navbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .navbar-actions {
+    width: 100%;
+  }
+
+  .admin-nav-button,
+  .logout-button {
+    flex: 1;
+  }
+
+  .vehicle-card {
+    padding: 20px;
+  }
+}
