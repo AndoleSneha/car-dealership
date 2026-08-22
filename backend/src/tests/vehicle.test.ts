@@ -1,7 +1,6 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import app from "../app";
 import connectDB from "../config/db";
 import Vehicle from "../models/Vehicle";
@@ -40,7 +39,12 @@ describe("Vehicle Management", () => {
   afterAll(async () => {
     await Vehicle.deleteMany({
       make: {
-        $in: ["TestToyota", "TestHonda", "UpdatedToyota"]
+        $in: [
+          "TestToyota",
+          "TestHonda",
+          "UpdatedToyota",
+          "TestPurchase"
+        ]
       }
     });
 
@@ -211,9 +215,160 @@ describe("Vehicle Management", () => {
         .set("Authorization", `Bearer ${adminToken}`);
 
       expect(response.status).toBe(200);
+
       expect(response.body.message).toBe(
         "Vehicle deleted successfully"
       );
     });
   });
+
+  describe("POST /api/vehicles/:id/purchase", () => {
+    let purchaseVehicleId: string;
+    let outOfStockVehicleId: string;
+
+    beforeEach(async () => {
+      const vehicle = await Vehicle.create({
+        make: "TestPurchase",
+        model: "AvailableCar",
+        category: "Sedan",
+        price: 2000000,
+        quantity: 5
+      });
+
+      purchaseVehicleId = vehicle._id.toString();
+
+      const outOfStockVehicle = await Vehicle.create({
+        make: "TestPurchase",
+        model: "OutOfStockCar",
+        category: "SUV",
+        price: 3000000,
+        quantity: 0
+      });
+
+      outOfStockVehicleId =
+        outOfStockVehicle._id.toString();
+    });
+
+    it("should purchase a vehicle and decrease its quantity", async () => {
+      const response = await request(app)
+        .post(`/api/vehicles/${purchaseVehicleId}/purchase`);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body.vehicle).toBeDefined();
+
+      expect(response.body.vehicle.quantity).toBe(4);
+    });
+
+    it("should reject purchase when quantity is zero", async () => {
+      const response = await request(app)
+        .post(
+          `/api/vehicles/${outOfStockVehicleId}/purchase`
+        );
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Vehicle is out of stock"
+      );
+    });
+
+    it("should return 404 when purchasing a non-existent vehicle", async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+
+      const response = await request(app)
+        .post(`/api/vehicles/${fakeId}/purchase`);
+
+      expect(response.status).toBe(404);
+
+      expect(response.body.message).toBe(
+        "Vehicle not found"
+      );
+    });
+  });
+  describe("POST /api/vehicles/:id/restock", () => {
+  let restockVehicleId: string;
+
+  beforeEach(async () => {
+    const vehicle = await Vehicle.create({
+      make: "TestPurchase",
+      model: "RestockCar",
+      category: "SUV",
+      price: 3000000,
+      quantity: 5
+    });
+
+    restockVehicleId = vehicle._id.toString();
+  });
+
+  it("should reject restocking without authentication", async () => {
+    const response = await request(app)
+      .post(`/api/vehicles/${restockVehicleId}/restock`)
+      .send({
+        quantity: 3
+      });
+
+    expect(response.status).toBe(401);
+  });
+
+  it("should reject restocking for a normal user", async () => {
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+
+    const userToken = jwt.sign(
+      {
+        userId: "normal-user-id",
+        role: "user"
+      },
+      jwtSecret,
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    const response = await request(app)
+      .post(`/api/vehicles/${restockVehicleId}/restock`)
+      .set("Authorization", `Bearer ${userToken}`)
+      .send({
+        quantity: 3
+      });
+
+    expect(response.status).toBe(403);
+  });
+
+  it("should restock a vehicle for an admin user", async () => {
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+
+    const adminToken = jwt.sign(
+      {
+        userId: "admin-user-id",
+        role: "admin"
+      },
+      jwtSecret,
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    const response = await request(app)
+      .post(`/api/vehicles/${restockVehicleId}/restock`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        quantity: 3
+      });
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.vehicle).toBeDefined();
+
+    expect(response.body.vehicle.quantity).toBe(8);
+  });
+});
 });

@@ -194,7 +194,7 @@ export const updateVehicle = async (
         quantity
       },
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true
       }
     );
@@ -240,6 +240,91 @@ export const deleteVehicle = async (
     });
   } catch (error) {
     console.error("Vehicle deletion error:", error);
+
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
+
+export const purchaseVehicle = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const vehicle = await Vehicle.findById(id);
+
+    if (!vehicle) {
+      res.status(404).json({
+        message: "Vehicle not found"
+      });
+      return;
+    }
+
+    if (vehicle.quantity <= 0) {
+      res.status(400).json({
+        message: "Vehicle is out of stock"
+      });
+      return;
+    }
+
+    vehicle.quantity -= 1;
+
+    await vehicle.save();
+
+    res.status(200).json({
+      message: "Vehicle purchased successfully",
+      vehicle
+    });
+  } catch (error) {
+    console.error("Vehicle purchase error:", error);
+
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
+
+export const restockVehicle = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (
+      quantity === undefined ||
+      typeof quantity !== "number" ||
+      quantity <= 0
+    ) {
+      res.status(400).json({
+        message: "Restock quantity must be greater than 0"
+      });
+      return;
+    }
+
+    const vehicle = await Vehicle.findById(id);
+
+    if (!vehicle) {
+      res.status(404).json({
+        message: "Vehicle not found"
+      });
+      return;
+    }
+
+    vehicle.quantity += quantity;
+
+    await vehicle.save();
+
+    res.status(200).json({
+      message: "Vehicle restocked successfully",
+      vehicle
+    });
+  } catch (error) {
+    console.error("Vehicle restock error:", error);
 
     res.status(500).json({
       message: "Internal server error"

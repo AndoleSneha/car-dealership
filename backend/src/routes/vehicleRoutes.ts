@@ -5,7 +5,9 @@ import {
   getVehicles,
   searchVehicles,
   updateVehicle,
-  deleteVehicle
+  deleteVehicle,
+  purchaseVehicle,
+  restockVehicle
 } from "../controllers/vehicleController";
 
 import {
@@ -18,6 +20,15 @@ const router = Router();
 router.post("/", createVehicle);
 
 router.get("/search", searchVehicles);
+
+router.post("/:id/purchase", purchaseVehicle);
+
+router.post(
+  "/:id/restock",
+  authenticateToken,
+  requireAdmin,
+  restockVehicle
+);
 
 router.put("/:id", updateVehicle);
 
