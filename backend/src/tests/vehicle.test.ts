@@ -5,6 +5,8 @@ import connectDB from "../config/db";
 import Vehicle from "../models/Vehicle";
 
 describe("Vehicle Management", () => {
+  let vehicleId: string;
+
   beforeAll(async () => {
     await connectDB();
 
@@ -14,28 +16,29 @@ describe("Vehicle Management", () => {
       }
     });
 
-    await Vehicle.create([
-      {
-        make: "TestToyota",
-        model: "Camry",
-        category: "Sedan",
-        price: 2500000,
-        quantity: 5
-      },
-      {
-        make: "TestHonda",
-        model: "Civic",
-        category: "Sedan",
-        price: 2200000,
-        quantity: 3
-      }
-    ]);
+    const vehicle = await Vehicle.create({
+      make: "TestToyota",
+      model: "Camry",
+      category: "Sedan",
+      price: 2500000,
+      quantity: 5
+    });
+
+    vehicleId = vehicle._id.toString();
+
+    await Vehicle.create({
+      make: "TestHonda",
+      model: "Civic",
+      category: "Sedan",
+      price: 2200000,
+      quantity: 3
+    });
   });
 
   afterAll(async () => {
     await Vehicle.deleteMany({
       make: {
-        $in: ["TestToyota", "TestHonda"]
+        $in: ["TestToyota", "TestHonda", "UpdatedToyota"]
       }
     });
 
@@ -145,6 +148,38 @@ describe("Vehicle Management", () => {
       expect(response.body.vehicles[0].price).toBe(
         2500000
       );
+    });
+  });
+
+  describe("PUT /api/vehicles/:id", () => {
+    it("should update an existing vehicle", async () => {
+      const response = await request(app)
+        .put(`/api/vehicles/${vehicleId}`)
+        .send({
+          make: "UpdatedToyota",
+          model: "Camry",
+          category: "SUV",
+          price: 2800000,
+          quantity: 10
+        });
+
+      expect(response.status).toBe(200);
+
+      expect(response.body.vehicle).toBeDefined();
+
+      expect(response.body.vehicle.make).toBe(
+        "UpdatedToyota"
+      );
+
+      expect(response.body.vehicle.category).toBe(
+        "SUV"
+      );
+
+      expect(response.body.vehicle.price).toBe(
+        2800000
+      );
+
+      expect(response.body.vehicle.quantity).toBe(10);
     });
   });
 });

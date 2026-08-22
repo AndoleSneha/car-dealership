@@ -56,7 +56,6 @@ export const createVehicle = async (
   }
 };
 
-
 export const getVehicles = async (
   _req: Request,
   res: Response
@@ -79,7 +78,6 @@ export const getVehicles = async (
     });
   }
 };
-
 
 export const searchVehicles = async (
   req: Request,
@@ -119,7 +117,10 @@ export const searchVehicles = async (
       };
     }
 
-    if (minPrice !== undefined || maxPrice !== undefined) {
+    if (
+      minPrice !== undefined ||
+      maxPrice !== undefined
+    ) {
       filter.price = {};
 
       if (minPrice !== undefined) {
@@ -140,6 +141,77 @@ export const searchVehicles = async (
     });
   } catch (error) {
     console.error("Search vehicles error:", error);
+
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
+
+export const updateVehicle = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const {
+      make,
+      model,
+      category,
+      price,
+      quantity
+    } = req.body;
+
+    if (
+      !make ||
+      !model ||
+      !category ||
+      price === undefined ||
+      quantity === undefined
+    ) {
+      res.status(400).json({
+        message:
+          "Make, model, category, price and quantity are required"
+      });
+      return;
+    }
+
+    if (price < 0 || quantity < 0) {
+      res.status(400).json({
+        message: "Price and quantity cannot be negative"
+      });
+      return;
+    }
+
+    const vehicle = await Vehicle.findByIdAndUpdate(
+      id,
+      {
+        make,
+        model,
+        category,
+        price,
+        quantity
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!vehicle) {
+      res.status(404).json({
+        message: "Vehicle not found"
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Vehicle updated successfully",
+      vehicle
+    });
+  } catch (error) {
+    console.error("Vehicle update error:", error);
 
     res.status(500).json({
       message: "Internal server error"
