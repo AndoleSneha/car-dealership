@@ -22,8 +22,8 @@ function Auth({ onLogin }: AuthProps) {
 
     try {
       const endpoint = isLogin
-        ? "http://https://car-dealership-backend-wd20.onrender.com/api/auth/login"
-        : "http://https://car-dealership-backend-wd20.onrender.com/api/auth/register";
+        ? "https://car-dealership-backend-wd20.onrender.com/api/auth/login"
+        : "https://car-dealership-backend-wd20.onrender.com/api/auth/register";
 
       const body = isLogin
         ? {

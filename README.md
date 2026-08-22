@@ -187,7 +187,7 @@ npm run dev
 
 The backend runs on:
 
-http://localhost:5000
+https://car-dealership-backend-wd20.onrender.com
 3. Frontend setup
 
 Open another terminal:

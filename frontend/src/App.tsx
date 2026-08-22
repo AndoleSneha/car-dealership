@@ -103,7 +103,7 @@ function App() {
       setAuthLoading(true);
 
       const response = await fetch(
-        "http://https://car-dealership-backend-wd20.onrender.com/api/auth/login",
+        "https://car-dealership-backend-wd20.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -156,7 +156,7 @@ function App() {
       setAuthLoading(true);
 
       const response = await fetch(
-        "http://https://car-dealership-backend-wd20.onrender.com/api/auth/register",
+        "https://car-dealership-backend-wd20.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {
@@ -226,7 +226,7 @@ function App() {
       setError("");
 
       const response = await fetch(
-        "http://https://car-dealership-backend-wd20.onrender.com/api/vehicles"
+        "https://car-dealership-backend-wd20.onrender.com/api/vehicles"
       );
 
       if (!response.ok) {
@@ -266,7 +266,7 @@ function App() {
       }
 
       const response = await fetch(
-        `http://https://car-dealership-backend-wd20.onrender.com/api/vehicles/${id}/purchase`,
+        `https://car-dealership-backend-wd20.onrender.com/api/vehicles/${id}/purchase`,
         {
           method: "POST",
           headers: {

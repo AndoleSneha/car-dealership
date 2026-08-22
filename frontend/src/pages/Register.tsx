@@ -16,7 +16,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "http://https://car-dealership-backend-wd20.onrender.com/api/auth/register",
+        "https://car-dealership-backend-wd20.onrender.com/api/auth/register",
         {
           name,
           email,
