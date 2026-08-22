@@ -1,5 +1,7 @@
 import request from "supertest";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import app from "../app";
 import connectDB from "../config/db";
 import Vehicle from "../models/Vehicle";
@@ -12,7 +14,7 @@ describe("Vehicle Management", () => {
 
     await Vehicle.deleteMany({
       make: {
-        $in: ["TestToyota", "TestHonda"]
+        $in: ["TestToyota", "TestHonda", "UpdatedToyota"]
       }
     });
 
@@ -58,17 +60,9 @@ describe("Vehicle Management", () => {
         });
 
       expect(response.status).toBe(201);
-
       expect(response.body.vehicle).toBeDefined();
-
-      expect(response.body.vehicle.make).toBe(
-        "TestToyota"
-      );
-
-      expect(response.body.vehicle.model).toBe(
-        "Corolla"
-      );
-
+      expect(response.body.vehicle.make).toBe("TestToyota");
+      expect(response.body.vehicle.model).toBe("Corolla");
       expect(response.body.vehicle.quantity).toBe(5);
     });
   });
@@ -79,16 +73,9 @@ describe("Vehicle Management", () => {
         .get("/api/vehicles");
 
       expect(response.status).toBe(200);
-
       expect(response.body.vehicles).toBeDefined();
-
-      expect(Array.isArray(response.body.vehicles)).toBe(
-        true
-      );
-
-      expect(response.body.vehicles.length).toBeGreaterThan(
-        0
-      );
+      expect(Array.isArray(response.body.vehicles)).toBe(true);
+      expect(response.body.vehicles.length).toBeGreaterThan(0);
     });
   });
 
@@ -101,16 +88,9 @@ describe("Vehicle Management", () => {
         });
 
       expect(response.status).toBe(200);
-
       expect(response.body.vehicles).toBeDefined();
-
-      expect(response.body.vehicles.length).toBeGreaterThan(
-        0
-      );
-
-      expect(response.body.vehicles[0].make).toBe(
-        "TestToyota"
-      );
+      expect(response.body.vehicles.length).toBeGreaterThan(0);
+      expect(response.body.vehicles[0].make).toBe("TestToyota");
     });
 
     it("should search vehicles by category", async () => {
@@ -121,12 +101,8 @@ describe("Vehicle Management", () => {
         });
 
       expect(response.status).toBe(200);
-
       expect(response.body.vehicles).toBeDefined();
-
-      expect(response.body.vehicles.length).toBeGreaterThan(
-        0
-      );
+      expect(response.body.vehicles.length).toBeGreaterThan(0);
     });
 
     it("should search vehicles by price range", async () => {
@@ -138,16 +114,9 @@ describe("Vehicle Management", () => {
         });
 
       expect(response.status).toBe(200);
-
       expect(response.body.vehicles).toBeDefined();
-
-      expect(response.body.vehicles.length).toBeGreaterThan(
-        0
-      );
-
-      expect(response.body.vehicles[0].price).toBe(
-        2500000
-      );
+      expect(response.body.vehicles.length).toBeGreaterThan(0);
+      expect(response.body.vehicles[0].price).toBe(2500000);
     });
   });
 
@@ -164,22 +133,87 @@ describe("Vehicle Management", () => {
         });
 
       expect(response.status).toBe(200);
-
       expect(response.body.vehicle).toBeDefined();
-
-      expect(response.body.vehicle.make).toBe(
-        "UpdatedToyota"
-      );
-
-      expect(response.body.vehicle.category).toBe(
-        "SUV"
-      );
-
-      expect(response.body.vehicle.price).toBe(
-        2800000
-      );
-
+      expect(response.body.vehicle.make).toBe("UpdatedToyota");
+      expect(response.body.vehicle.category).toBe("SUV");
+      expect(response.body.vehicle.price).toBe(2800000);
       expect(response.body.vehicle.quantity).toBe(10);
+    });
+  });
+
+  describe("DELETE /api/vehicles/:id", () => {
+    let deleteVehicleId: string;
+
+    beforeEach(async () => {
+      const vehicle = await Vehicle.create({
+        make: "TestToyota",
+        model: "DeleteMe",
+        category: "Sedan",
+        price: 1800000,
+        quantity: 2
+      });
+
+      deleteVehicleId = vehicle._id.toString();
+    });
+
+    it("should reject deletion without authentication", async () => {
+      const response = await request(app)
+        .delete(`/api/vehicles/${deleteVehicleId}`);
+
+      expect(response.status).toBe(401);
+    });
+
+    it("should reject deletion for a normal user", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const userToken = jwt.sign(
+        {
+          userId: "normal-user-id",
+          role: "user"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const response = await request(app)
+        .delete(`/api/vehicles/${deleteVehicleId}`)
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it("should delete a vehicle for an admin user", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const response = await request(app)
+        .delete(`/api/vehicles/${deleteVehicleId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe(
+        "Vehicle deleted successfully"
+      );
     });
   });
 });

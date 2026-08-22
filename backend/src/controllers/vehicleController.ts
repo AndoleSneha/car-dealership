@@ -218,3 +218,31 @@ export const updateVehicle = async (
     });
   }
 };
+
+export const deleteVehicle = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const vehicle = await Vehicle.findByIdAndDelete(id);
+
+    if (!vehicle) {
+      res.status(404).json({
+        message: "Vehicle not found"
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Vehicle deleted successfully"
+    });
+  } catch (error) {
+    console.error("Vehicle deletion error:", error);
+
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
