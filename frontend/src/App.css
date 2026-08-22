@@ -791,3 +791,169 @@ select {
     padding: 20px;
   }
 }
+/* =========================================
+   ADMIN VEHICLE INVENTORY
+========================================= */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 10px;
+}
+
+.admin-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #2563eb;
+}
+
+.admin-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  border-color: #bfdbfe;
+}
+
+.admin-card-icon {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  border-radius: 16px;
+  font-size: 38px;
+  margin-bottom: 18px;
+}
+
+.admin-card h2 {
+  margin: 0 0 18px;
+  font-size: 21px;
+  color: #111827;
+  font-weight: 800;
+}
+
+.admin-card p {
+  margin: 10px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.admin-card p strong {
+  color: #374151;
+}
+
+.admin-card p:nth-of-type(3) {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2563eb;
+  margin: 16px 0;
+}
+
+/* Quantity */
+
+.admin-card p:last-of-type {
+  display: inline-block;
+  padding: 7px 12px;
+  background: #ecfdf5;
+  color: #15803d;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* ACTION BUTTONS */
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #f0f1f3;
+}
+
+.restock-button,
+.delete-button {
+  flex: 1;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.restock-button {
+  background: #2563eb;
+  color: white;
+}
+
+.restock-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.25);
+}
+
+.delete-button {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.delete-button:hover {
+  background: #dc2626;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   ADMIN RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-container {
+    padding: 25px 18px;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    padding: 22px;
+  }
+
+  .admin-card {
+    padding: 20px;
+  }
+
+  .admin-actions {
+    flex-direction: column;
+  }
+
+  .restock-button,
+  .delete-button {
+    width: 100%;
+  }
+}
