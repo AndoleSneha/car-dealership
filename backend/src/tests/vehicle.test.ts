@@ -9,21 +9,34 @@ describe("Vehicle Management", () => {
     await connectDB();
 
     await Vehicle.deleteMany({
-      make: "TestToyota"
+      make: {
+        $in: ["TestToyota", "TestHonda"]
+      }
     });
 
-    await Vehicle.create({
-      make: "TestToyota",
-      model: "Camry",
-      category: "Sedan",
-      price: 2500000,
-      quantity: 5
-    });
+    await Vehicle.create([
+      {
+        make: "TestToyota",
+        model: "Camry",
+        category: "Sedan",
+        price: 2500000,
+        quantity: 5
+      },
+      {
+        make: "TestHonda",
+        model: "Civic",
+        category: "Sedan",
+        price: 2200000,
+        quantity: 3
+      }
+    ]);
   });
 
   afterAll(async () => {
     await Vehicle.deleteMany({
-      make: "TestToyota"
+      make: {
+        $in: ["TestToyota", "TestHonda"]
+      }
     });
 
     await mongoose.connection.close();
@@ -72,6 +85,65 @@ describe("Vehicle Management", () => {
 
       expect(response.body.vehicles.length).toBeGreaterThan(
         0
+      );
+    });
+  });
+
+  describe("GET /api/vehicles/search", () => {
+    it("should search vehicles by make", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          make: "TestToyota"
+        });
+
+      expect(response.status).toBe(200);
+
+      expect(response.body.vehicles).toBeDefined();
+
+      expect(response.body.vehicles.length).toBeGreaterThan(
+        0
+      );
+
+      expect(response.body.vehicles[0].make).toBe(
+        "TestToyota"
+      );
+    });
+
+    it("should search vehicles by category", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          category: "Sedan"
+        });
+
+      expect(response.status).toBe(200);
+
+      expect(response.body.vehicles).toBeDefined();
+
+      expect(response.body.vehicles.length).toBeGreaterThan(
+        0
+      );
+    });
+
+    it("should search vehicles by price range", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          minPrice: 2300000,
+          maxPrice: 2600000
+        });
+
+      expect(response.status).toBe(200);
+
+      expect(response.body.vehicles).toBeDefined();
+
+      expect(response.body.vehicles.length).toBeGreaterThan(
+        0
+      );
+
+      expect(response.body.vehicles[0].price).toBe(
+        2500000
       );
     });
   });

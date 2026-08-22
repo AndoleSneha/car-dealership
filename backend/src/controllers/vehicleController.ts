@@ -79,3 +79,70 @@ export const getVehicles = async (
     });
   }
 };
+
+
+export const searchVehicles = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      make,
+      model,
+      category,
+      minPrice,
+      maxPrice
+    } = req.query;
+
+    const filter: any = {
+      quantity: { $gt: 0 }
+    };
+
+    if (make) {
+      filter.make = {
+        $regex: make as string,
+        $options: "i"
+      };
+    }
+
+    if (model) {
+      filter.model = {
+        $regex: model as string,
+        $options: "i"
+      };
+    }
+
+    if (category) {
+      filter.category = {
+        $regex: category as string,
+        $options: "i"
+      };
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
+
+      if (minPrice !== undefined) {
+        filter.price.$gte = Number(minPrice);
+      }
+
+      if (maxPrice !== undefined) {
+        filter.price.$lte = Number(maxPrice);
+      }
+    }
+
+    const vehicles = await Vehicle.find(filter).sort({
+      createdAt: -1
+    });
+
+    res.status(200).json({
+      vehicles
+    });
+  } catch (error) {
+    console.error("Search vehicles error:", error);
+
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
