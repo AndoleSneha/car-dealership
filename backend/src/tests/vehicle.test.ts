@@ -13,7 +13,13 @@ describe("Vehicle Management", () => {
 
     await Vehicle.deleteMany({
       make: {
-        $in: ["TestToyota", "TestHonda", "UpdatedToyota"]
+        $in: [
+          "TestToyota",
+          "TestHonda",
+          "UpdatedToyota",
+          "TestPurchase",
+          "TestValidation"
+        ]
       }
     });
 
@@ -43,7 +49,8 @@ describe("Vehicle Management", () => {
           "TestToyota",
           "TestHonda",
           "UpdatedToyota",
-          "TestPurchase"
+          "TestPurchase",
+          "TestValidation"
         ]
       }
     });
@@ -68,6 +75,56 @@ describe("Vehicle Management", () => {
       expect(response.body.vehicle.make).toBe("TestToyota");
       expect(response.body.vehicle.model).toBe("Corolla");
       expect(response.body.vehicle.quantity).toBe(5);
+    });
+
+    it("should reject vehicle creation when required fields are missing", async () => {
+      const response = await request(app)
+        .post("/api/vehicles")
+        .send({
+          make: "TestValidation"
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Make, model, category, price and quantity are required"
+      );
+    });
+
+    it("should reject vehicle creation with negative price", async () => {
+      const response = await request(app)
+        .post("/api/vehicles")
+        .send({
+          make: "TestValidation",
+          model: "NegativePrice",
+          category: "Sedan",
+          price: -1000,
+          quantity: 5
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Price and quantity cannot be negative"
+      );
+    });
+
+    it("should reject vehicle creation with negative quantity", async () => {
+      const response = await request(app)
+        .post("/api/vehicles")
+        .send({
+          make: "TestValidation",
+          model: "NegativeQuantity",
+          category: "Sedan",
+          price: 1000000,
+          quantity: -5
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Price and quantity cannot be negative"
+      );
     });
   });
 
@@ -122,6 +179,41 @@ describe("Vehicle Management", () => {
       expect(response.body.vehicles.length).toBeGreaterThan(0);
       expect(response.body.vehicles[0].price).toBe(2500000);
     });
+
+    it("should search vehicles by model", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          model: "Camry"
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.vehicles).toBeDefined();
+      expect(response.body.vehicles.length).toBeGreaterThan(0);
+      expect(response.body.vehicles[0].model).toBe("Camry");
+    });
+
+    it("should search vehicles using only minimum price", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          minPrice: 2400000
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.vehicles).toBeDefined();
+    });
+
+    it("should search vehicles using only maximum price", async () => {
+      const response = await request(app)
+        .get("/api/vehicles/search")
+        .query({
+          maxPrice: 2300000
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.vehicles).toBeDefined();
+    });
   });
 
   describe("PUT /api/vehicles/:id", () => {
@@ -142,6 +234,58 @@ describe("Vehicle Management", () => {
       expect(response.body.vehicle.category).toBe("SUV");
       expect(response.body.vehicle.price).toBe(2800000);
       expect(response.body.vehicle.quantity).toBe(10);
+    });
+
+    it("should reject update when required fields are missing", async () => {
+      const response = await request(app)
+        .put(`/api/vehicles/${vehicleId}`)
+        .send({
+          make: "UpdatedToyota"
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Make, model, category, price and quantity are required"
+      );
+    });
+
+    it("should reject update with negative price", async () => {
+      const response = await request(app)
+        .put(`/api/vehicles/${vehicleId}`)
+        .send({
+          make: "UpdatedToyota",
+          model: "Camry",
+          category: "SUV",
+          price: -500,
+          quantity: 5
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Price and quantity cannot be negative"
+      );
+    });
+
+    it("should return 404 when updating a non-existent vehicle", async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+
+      const response = await request(app)
+        .put(`/api/vehicles/${fakeId}`)
+        .send({
+          make: "TestToyota",
+          model: "Camry",
+          category: "Sedan",
+          price: 2000000,
+          quantity: 5
+        });
+
+      expect(response.status).toBe(404);
+
+      expect(response.body.message).toBe(
+        "Vehicle not found"
+      );
     });
   });
 
@@ -220,6 +364,37 @@ describe("Vehicle Management", () => {
         "Vehicle deleted successfully"
       );
     });
+
+    it("should return 404 when deleting a non-existent vehicle", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const fakeId = new mongoose.Types.ObjectId();
+
+      const response = await request(app)
+        .delete(`/api/vehicles/${fakeId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+
+      expect(response.body.message).toBe(
+        "Vehicle not found"
+      );
+    });
   });
 
   describe("POST /api/vehicles/:id/purchase", () => {
@@ -286,89 +461,188 @@ describe("Vehicle Management", () => {
       );
     });
   });
-  describe("POST /api/vehicles/:id/restock", () => {
-  let restockVehicleId: string;
 
-  beforeEach(async () => {
-    const vehicle = await Vehicle.create({
-      make: "TestPurchase",
-      model: "RestockCar",
-      category: "SUV",
-      price: 3000000,
-      quantity: 5
+  describe("POST /api/vehicles/:id/restock", () => {
+    let restockVehicleId: string;
+
+    beforeEach(async () => {
+      const vehicle = await Vehicle.create({
+        make: "TestPurchase",
+        model: "RestockCar",
+        category: "SUV",
+        price: 3000000,
+        quantity: 5
+      });
+
+      restockVehicleId = vehicle._id.toString();
     });
 
-    restockVehicleId = vehicle._id.toString();
-  });
+    it("should reject restocking without authentication", async () => {
+      const response = await request(app)
+        .post(`/api/vehicles/${restockVehicleId}/restock`)
+        .send({
+          quantity: 3
+        });
 
-  it("should reject restocking without authentication", async () => {
-    const response = await request(app)
-      .post(`/api/vehicles/${restockVehicleId}/restock`)
-      .send({
-        quantity: 3
-      });
+      expect(response.status).toBe(401);
+    });
 
-    expect(response.status).toBe(401);
-  });
+    it("should reject restocking for a normal user", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
 
-  it("should reject restocking for a normal user", async () => {
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      throw new Error("JWT_SECRET is not configured");
-    }
-
-    const userToken = jwt.sign(
-      {
-        userId: "normal-user-id",
-        role: "user"
-      },
-      jwtSecret,
-      {
-        expiresIn: "1h"
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
       }
-    );
 
-    const response = await request(app)
-      .post(`/api/vehicles/${restockVehicleId}/restock`)
-      .set("Authorization", `Bearer ${userToken}`)
-      .send({
-        quantity: 3
-      });
+      const userToken = jwt.sign(
+        {
+          userId: "normal-user-id",
+          role: "user"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
 
-    expect(response.status).toBe(403);
-  });
+      const response = await request(app)
+        .post(`/api/vehicles/${restockVehicleId}/restock`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({
+          quantity: 3
+        });
 
-  it("should restock a vehicle for an admin user", async () => {
-    const jwtSecret = process.env.JWT_SECRET;
+      expect(response.status).toBe(403);
+    });
 
-    if (!jwtSecret) {
-      throw new Error("JWT_SECRET is not configured");
-    }
+    it("should restock a vehicle for an admin user", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
 
-    const adminToken = jwt.sign(
-      {
-        userId: "admin-user-id",
-        role: "admin"
-      },
-      jwtSecret,
-      {
-        expiresIn: "1h"
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
       }
-    );
 
-    const response = await request(app)
-      .post(`/api/vehicles/${restockVehicleId}/restock`)
-      .set("Authorization", `Bearer ${adminToken}`)
-      .send({
-        quantity: 3
-      });
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
 
-    expect(response.status).toBe(200);
+      const response = await request(app)
+        .post(`/api/vehicles/${restockVehicleId}/restock`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          quantity: 3
+        });
 
-    expect(response.body.vehicle).toBeDefined();
+      expect(response.status).toBe(200);
 
-    expect(response.body.vehicle.quantity).toBe(8);
+      expect(response.body.vehicle).toBeDefined();
+
+      expect(response.body.vehicle.quantity).toBe(8);
+    });
+
+    it("should reject restocking with zero quantity", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const response = await request(app)
+        .post(`/api/vehicles/${restockVehicleId}/restock`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          quantity: 0
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Restock quantity must be greater than 0"
+      );
+    });
+
+    it("should reject restocking with negative quantity", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const response = await request(app)
+        .post(`/api/vehicles/${restockVehicleId}/restock`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          quantity: -2
+        });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.message).toBe(
+        "Restock quantity must be greater than 0"
+      );
+    });
+
+    it("should return 404 when restocking a non-existent vehicle", async () => {
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        throw new Error("JWT_SECRET is not configured");
+      }
+
+      const adminToken = jwt.sign(
+        {
+          userId: "admin-user-id",
+          role: "admin"
+        },
+        jwtSecret,
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      const fakeId = new mongoose.Types.ObjectId();
+
+      const response = await request(app)
+        .post(`/api/vehicles/${fakeId}/restock`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+          quantity: 3
+        });
+
+      expect(response.status).toBe(404);
+
+      expect(response.body.message).toBe(
+        "Vehicle not found"
+      );
+    });
   });
-});
 });
