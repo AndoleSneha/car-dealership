@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import Vehicle from "../models/Vehicle";
 
+// ========================================
+// CREATE VEHICLE
+// ========================================
+
 export const createVehicle = async (
   req: Request,
   res: Response
@@ -9,28 +13,32 @@ export const createVehicle = async (
     const {
       make,
       model,
+      year,
       category,
       price,
-      quantity
+      quantity,
+      imageUrl,
     } = req.body;
 
     if (
       !make ||
       !model ||
+      year === undefined ||
       !category ||
       price === undefined ||
-      quantity === undefined
+      quantity === undefined ||
+      !imageUrl
     ) {
       res.status(400).json({
         message:
-          "Make, model, category, price and quantity are required"
+          "Make, model, year, category, price, quantity and image URL are required",
       });
       return;
     }
 
     if (price < 0 || quantity < 0) {
       res.status(400).json({
-        message: "Price and quantity cannot be negative"
+        message: "Price and quantity cannot be negative",
       });
       return;
     }
@@ -38,23 +46,29 @@ export const createVehicle = async (
     const vehicle = await Vehicle.create({
       make,
       model,
+      year,
       category,
       price,
-      quantity
+      quantity,
+      imageUrl,
     });
 
     res.status(201).json({
       message: "Vehicle created successfully",
-      vehicle
+      vehicle,
     });
   } catch (error) {
     console.error("Vehicle creation error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// GET VEHICLES
+// ========================================
 
 export const getVehicles = async (
   _req: Request,
@@ -62,22 +76,26 @@ export const getVehicles = async (
 ): Promise<void> => {
   try {
     const vehicles = await Vehicle.find({
-      quantity: { $gt: 0 }
+      quantity: { $gt: 0 },
     }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     res.status(200).json({
-      vehicles
+      vehicles,
     });
   } catch (error) {
     console.error("Get vehicles error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// SEARCH VEHICLES
+// ========================================
 
 export const searchVehicles = async (
   req: Request,
@@ -89,31 +107,31 @@ export const searchVehicles = async (
       model,
       category,
       minPrice,
-      maxPrice
+      maxPrice,
     } = req.query;
 
     const filter: any = {
-      quantity: { $gt: 0 }
+      quantity: { $gt: 0 },
     };
 
     if (make) {
       filter.make = {
         $regex: make as string,
-        $options: "i"
+        $options: "i",
       };
     }
 
     if (model) {
       filter.model = {
         $regex: model as string,
-        $options: "i"
+        $options: "i",
       };
     }
 
     if (category) {
       filter.category = {
         $regex: category as string,
-        $options: "i"
+        $options: "i",
       };
     }
 
@@ -133,20 +151,24 @@ export const searchVehicles = async (
     }
 
     const vehicles = await Vehicle.find(filter).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     res.status(200).json({
-      vehicles
+      vehicles,
     });
   } catch (error) {
     console.error("Search vehicles error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// UPDATE VEHICLE
+// ========================================
 
 export const updateVehicle = async (
   req: Request,
@@ -158,28 +180,32 @@ export const updateVehicle = async (
     const {
       make,
       model,
+      year,
       category,
       price,
-      quantity
+      quantity,
+      imageUrl,
     } = req.body;
 
     if (
       !make ||
       !model ||
+      year === undefined ||
       !category ||
       price === undefined ||
-      quantity === undefined
+      quantity === undefined ||
+      !imageUrl
     ) {
       res.status(400).json({
         message:
-          "Make, model, category, price and quantity are required"
+          "Make, model, year, category, price, quantity and image URL are required",
       });
       return;
     }
 
     if (price < 0 || quantity < 0) {
       res.status(400).json({
-        message: "Price and quantity cannot be negative"
+        message: "Price and quantity cannot be negative",
       });
       return;
     }
@@ -189,35 +215,41 @@ export const updateVehicle = async (
       {
         make,
         model,
+        year,
         category,
         price,
-        quantity
+        quantity,
+        imageUrl,
       },
       {
         returnDocument: "after",
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!vehicle) {
       res.status(404).json({
-        message: "Vehicle not found"
+        message: "Vehicle not found",
       });
       return;
     }
 
     res.status(200).json({
       message: "Vehicle updated successfully",
-      vehicle
+      vehicle,
     });
   } catch (error) {
     console.error("Vehicle update error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// DELETE VEHICLE
+// ========================================
 
 export const deleteVehicle = async (
   req: Request,
@@ -230,22 +262,26 @@ export const deleteVehicle = async (
 
     if (!vehicle) {
       res.status(404).json({
-        message: "Vehicle not found"
+        message: "Vehicle not found",
       });
       return;
     }
 
     res.status(200).json({
-      message: "Vehicle deleted successfully"
+      message: "Vehicle deleted successfully",
     });
   } catch (error) {
     console.error("Vehicle deletion error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// PURCHASE VEHICLE
+// ========================================
 
 export const purchaseVehicle = async (
   req: Request,
@@ -258,14 +294,14 @@ export const purchaseVehicle = async (
 
     if (!vehicle) {
       res.status(404).json({
-        message: "Vehicle not found"
+        message: "Vehicle not found",
       });
       return;
     }
 
     if (vehicle.quantity <= 0) {
       res.status(400).json({
-        message: "Vehicle is out of stock"
+        message: "Vehicle is out of stock",
       });
       return;
     }
@@ -276,16 +312,20 @@ export const purchaseVehicle = async (
 
     res.status(200).json({
       message: "Vehicle purchased successfully",
-      vehicle
+      vehicle,
     });
   } catch (error) {
     console.error("Vehicle purchase error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
+
+// ========================================
+// RESTOCK VEHICLE
+// ========================================
 
 export const restockVehicle = async (
   req: Request,
@@ -301,7 +341,7 @@ export const restockVehicle = async (
       quantity <= 0
     ) {
       res.status(400).json({
-        message: "Restock quantity must be greater than 0"
+        message: "Restock quantity must be greater than 0",
       });
       return;
     }
@@ -310,7 +350,7 @@ export const restockVehicle = async (
 
     if (!vehicle) {
       res.status(404).json({
-        message: "Vehicle not found"
+        message: "Vehicle not found",
       });
       return;
     }
@@ -321,13 +361,13 @@ export const restockVehicle = async (
 
     res.status(200).json({
       message: "Vehicle restocked successfully",
-      vehicle
+      vehicle,
     });
   } catch (error) {
     console.error("Vehicle restock error:", error);
 
     res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };

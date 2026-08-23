@@ -9,6 +9,7 @@ interface Vehicle {
   price: number;
   category: string;
   quantity: number;
+  imageUrl: string;
 }
 
 interface Favorite {
@@ -23,88 +24,155 @@ interface FavoritesProps {
 const API_URL =
   "https://car-dealership-backend-wd20.onrender.com";
 
-const Favorites = ({ onBack }: FavoritesProps) => {
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
+const Favorites = ({
+  onBack,
+}: FavoritesProps) => {
 
-  const token = localStorage.getItem("token");
+  const [favorites, setFavorites] =
+    useState<Favorite[]>([]);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const token =
+    localStorage.getItem("token");
 
   useEffect(() => {
     fetchFavorites();
   }, []);
 
   const fetchFavorites = async () => {
+
     if (!token) {
-      setMessage("Please login first");
+      setMessage(
+        "Please login first"
+      );
+
       setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.get(
-        `${API_URL}/api/favorites`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+
+      const response =
+        await axios.get(
+          `${API_URL}/api/favorites`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      setFavorites(
+        response.data
       );
 
-      setFavorites(response.data);
     } catch (error) {
-      console.error(error);
-      setMessage("Unable to load favorites");
+
+      console.error(
+        "Favorites error:",
+        error
+      );
+
+      setMessage(
+        "Unable to load favorites"
+      );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
-  const removeFavorite = async (vehicleId: string) => {
-    if (!token) return;
+  const removeFavorite =
+    async (vehicleId: string) => {
 
-    try {
-      await axios.delete(
-        `${API_URL}/api/favorites/${vehicleId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      if (!token) return;
 
-      setFavorites((currentFavorites) =>
-        currentFavorites.filter(
-          (favorite) =>
-            favorite.vehicle._id !== vehicleId
-        )
-      );
-    } catch (error) {
-      console.error(error);
-      setMessage("Unable to remove favorite");
-    }
-  };
+      try {
+
+        await axios.delete(
+          `${API_URL}/api/favorites/${vehicleId}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+        setFavorites(
+          (currentFavorites) =>
+            currentFavorites.filter(
+              (favorite) =>
+                favorite.vehicle._id !==
+                vehicleId
+            )
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        setMessage(
+          "Unable to remove favorite"
+        );
+
+      }
+    };
+
+  // ========================================
+  // LOADING
+  // ========================================
 
   if (loading) {
+
     return (
       <div className="app">
+
         <nav className="navbar">
-          <h1>Car Dealership</h1>
+
+          <h1>
+            Car Dealership
+          </h1>
+
         </nav>
 
         <main className="container">
-          <p>Loading favorites...</p>
+
+          <p>
+            Loading favorites...
+          </p>
+
         </main>
+
       </div>
     );
   }
 
+  // ========================================
+  // PAGE
+  // ========================================
+
   return (
     <div className="app">
+
+      {/* NAVBAR */}
+
       <nav className="navbar">
-        <h1>Car Dealership</h1>
+
+        <h1>
+          Car Dealership
+        </h1>
 
         <div className="navbar-actions">
+
           <button
             type="button"
             className="admin-nav-button"
@@ -117,21 +185,37 @@ const Favorites = ({ onBack }: FavoritesProps) => {
             type="button"
             className="logout-button"
             onClick={() => {
-              localStorage.removeItem("token");
+
+              localStorage.removeItem(
+                "token"
+              );
+
               window.location.reload();
+
             }}
           >
             Logout
           </button>
+
         </div>
+
       </nav>
 
+      {/* MAIN */}
+
       <main className="container">
+
         <div className="page-heading">
-          <h2>❤️ My Favorites</h2>
+
+          <h2>
+            ❤️ My Favorites
+          </h2>
+
           <p>
-            Vehicles you have saved for later.
+            Vehicles you have saved
+            for later.
           </p>
+
         </div>
 
         {message && (
@@ -140,12 +224,19 @@ const Favorites = ({ onBack }: FavoritesProps) => {
           </div>
         )}
 
+        {/* NO FAVORITES */}
+
         {favorites.length === 0 ? (
+
           <div className="no-results">
-            <h3>No favorites yet ❤️</h3>
+
+            <h3>
+              No favorites yet ❤️
+            </h3>
 
             <p>
-              You haven't added any vehicles to your
+              You haven't added any
+              vehicles to your
               favorites.
             </p>
 
@@ -156,77 +247,153 @@ const Favorites = ({ onBack }: FavoritesProps) => {
             >
               Browse Vehicles
             </button>
-          </div>
-        ) : (
-          <div className="vehicle-grid">
-            {favorites.map((favorite) => {
-              const vehicle = favorite.vehicle;
 
-              return (
-                <div
-                  className="vehicle-card"
-                  key={favorite._id}
-                >
-                  <div className="vehicle-card-top">
-                    <div className="vehicle-icon">
-                      🚗
+          </div>
+
+        ) : (
+
+          /* FAVORITE VEHICLES */
+
+          <div className="vehicle-grid">
+
+            {favorites.map(
+              (favorite) => {
+
+                const vehicle =
+                  favorite.vehicle;
+
+                return (
+
+                  <div
+                    className="vehicle-card"
+                    key={favorite._id}
+                  >
+
+                    {/* IMAGE + REMOVE */}
+
+                    <div className="vehicle-card-top">
+
+                      <div className="vehicle-image-container">
+
+                        {vehicle.imageUrl ? (
+
+                          <img
+                            src={
+                              vehicle.imageUrl
+                            }
+                            alt={`${vehicle.make} ${vehicle.model}`}
+                            className="vehicle-image"
+                            onError={(e) => {
+                              e.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
+
+                        ) : (
+
+                          <div className="vehicle-icon">
+                            🚗
+                          </div>
+
+                        )}
+
+                      </div>
+
+                      <button
+                        type="button"
+                        className="favorite-button favorite-active"
+                        onClick={() =>
+                          removeFavorite(
+                            vehicle._id
+                          )
+                        }
+                        title="Remove from favorites"
+                      >
+                        ❤️
+                      </button>
+
                     </div>
+
+                    {/* NAME */}
+
+                    <h3>
+                      {vehicle.make}{" "}
+                      {vehicle.model}
+                    </h3>
+
+                    {/* DETAILS */}
+
+                    <div className="vehicle-details">
+
+                      <p>
+                        <strong>
+                          Year:
+                        </strong>{" "}
+                        {vehicle.year}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Category:
+                        </strong>{" "}
+                        {vehicle.category}
+                      </p>
+
+                      <p className="vehicle-price">
+                        ₹
+                        {vehicle.price.toLocaleString(
+                          "en-IN"
+                        )}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Available:
+                        </strong>{" "}
+                        <span
+                          className={
+                            vehicle.quantity ===
+                            0
+                              ? "out-stock"
+                              : vehicle.quantity <=
+                                3
+                              ? "low-stock"
+                              : "in-stock"
+                          }
+                        >
+                          {vehicle.quantity}
+                        </span>
+                      </p>
+
+                    </div>
+
+                    {/* PURCHASE */}
 
                     <button
                       type="button"
-                      className="favorite-button favorite-active"
-                      onClick={() =>
-                        removeFavorite(vehicle._id)
+                      className="purchase-button"
+                      disabled={
+                        vehicle.quantity ===
+                        0
                       }
-                      title="Remove from favorites"
                     >
-                      ❤️
+                      {vehicle.quantity === 0
+                        ? "Out of Stock"
+                        : "Purchase"}
                     </button>
+
                   </div>
 
-                  <h3>
-                    {vehicle.make} {vehicle.model}
-                  </h3>
+                );
+              }
+            )}
 
-                  <div className="vehicle-details">
-                    <p>
-                      <strong>Year:</strong>{" "}
-                      {vehicle.year}
-                    </p>
-
-                    <p>
-                      <strong>Category:</strong>{" "}
-                      {vehicle.category}
-                    </p>
-
-                    <p className="vehicle-price">
-                      ₹
-                      {vehicle.price.toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
-
-                    <p>
-                      <strong>Available:</strong>{" "}
-                      {vehicle.quantity}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="purchase-button"
-                    disabled={vehicle.quantity === 0}
-                  >
-                    {vehicle.quantity === 0
-                      ? "Out of Stock"
-                      : "Purchase"}
-                  </button>
-                </div>
-              );
-            })}
           </div>
+
         )}
+
       </main>
+
     </div>
   );
 };
