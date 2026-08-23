@@ -107,78 +107,88 @@ function AdminDashboard({
   // ADD VEHICLE
   // ========================================
 
-  const addVehicle = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
+  // ========================================
+// ADD VEHICLE
+// ========================================
 
-    setMessage("");
+const addVehicle = async (
+  e: React.FormEvent
+) => {
+  e.preventDefault();
 
-    try {
-      const response = await fetch(
-        `${API_URL}/api/vehicles`,
-        {
-          method: "POST",
+  setMessage("");
 
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+  try {
+    const response = await fetch(
+      `${API_URL}/api/vehicles`,
+      {
+        method: "POST",
 
-          body: JSON.stringify({
-            make,
-            model,
-            year: Number(year),
-            price: Number(price),
-            category,
-            quantity: Number(quantity),
-            imageUrl,
-          }),
-        }
-      );
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
 
-      const data = await response.json();
-
-      console.log(
-        "ADD VEHICLE RESPONSE:",
-        data
-      );
-
-      if (!response.ok) {
-        setMessage(
-          data.message ||
-            "Unable to add vehicle"
-        );
-        return;
+        body: JSON.stringify({
+          make: make.trim(),
+          model: model.trim(),
+          year: Number(year),
+          price: Number(price),
+          category: category.trim(),
+          quantity: Number(quantity),
+          imageUrl: imageUrl.trim(),
+        }),
       }
+    );
 
-      if (data.vehicle) {
-        setVehicles(
-          (currentVehicles) => [
-            data.vehicle,
-            ...currentVehicles,
-          ]
-        );
-      }
+    const data = await response.json();
 
+    console.log(
+      "ADD VEHICLE RESPONSE:",
+      data
+    );
+
+    // ❌ Vehicle was not added
+    if (!response.ok) {
       setMessage(
-        "Vehicle added successfully!"
+        data.message ||
+          "Unable to add vehicle"
       );
-
-      clearForm();
-      setShowAddForm(false);
-    } catch (error) {
-      console.error(
-        "Add vehicle error:",
-        error
-      );
-
-      setMessage(
-        "Unable to connect to server"
-      );
+      return;
     }
-  };
 
+    // ========================================
+    // IMPORTANT:
+    // Fetch the latest vehicles from MongoDB
+    // ========================================
+
+    await fetchVehicles();
+
+    // ========================================
+    // SUCCESS
+    // ========================================
+
+    setMessage(
+      "Vehicle added successfully!"
+    );
+
+    // Clear form
+    clearForm();
+
+    // Close add form
+    setShowAddForm(false);
+
+  } catch (error) {
+    console.error(
+      "Add vehicle error:",
+      error
+    );
+
+    setMessage(
+      "Unable to connect to server"
+    );
+  }
+};
   // ========================================
   // START EDIT
   // ========================================

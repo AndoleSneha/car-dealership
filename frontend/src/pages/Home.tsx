@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -23,52 +23,78 @@ const Home = () => {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [message, setMessage] = useState("");
 
-  const token = localStorage.getItem("token");
+  // ========================================
+  // GET CURRENT TOKEN
+  // ========================================
 
-  useEffect(() => {
-    fetchVehicles();
-    fetchFavorites();
-  }, []);
+  const getToken = () => {
+    return localStorage.getItem("token");
+  };
 
   // ========================================
   // GET VEHICLES
   // ========================================
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = useCallback(async () => {
     try {
+      setMessage("");
+
       const response = await axios.get(
-        `${API_URL}/api/vehicles`
+        `${API_URL}/api/vehicles`,
+        {
+          params: {
+            _t: Date.now(),
+          },
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        }
       );
 
       console.log(
-        "HOME VEHICLES:",
+        "LATEST VEHICLES FROM BACKEND:",
         response.data.vehicles
       );
 
-      setVehicles(response.data.vehicles);
+      setVehicles(
+        response.data.vehicles || []
+      );
     } catch (error) {
       console.error(
         "Vehicle loading error:",
         error
       );
 
-      setMessage("Unable to load vehicles");
+      setMessage(
+        "Unable to load vehicles"
+      );
     }
-  };
+  }, []);
 
   // ========================================
   // GET FAVORITES
   // ========================================
 
-  const fetchFavorites = async () => {
-    if (!token) return;
+  const fetchFavorites = useCallback(async () => {
+    const token = getToken();
+
+    if (!token) {
+      setFavoriteIds([]);
+      return;
+    }
 
     try {
       const response = await axios.get(
         `${API_URL}/api/favorites`,
         {
+          params: {
+            _t: Date.now(),
+          },
           headers: {
             Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
           },
         }
       );
@@ -76,7 +102,8 @@ const Home = () => {
       const ids = response.data
         .filter(
           (favorite: any) =>
-            favorite.vehicle
+            favorite.vehicle &&
+            favorite.vehicle._id
         )
         .map(
           (favorite: { vehicle: Vehicle }) =>
@@ -84,13 +111,75 @@ const Home = () => {
         );
 
       setFavoriteIds(ids);
+
     } catch (error) {
       console.error(
         "Unable to load favorites:",
         error
       );
     }
-  };
+  }, []);
+
+  // ========================================
+  // INITIAL LOAD
+  // ========================================
+
+  useEffect(() => {
+    fetchVehicles();
+    fetchFavorites();
+  }, [
+    fetchVehicles,
+    fetchFavorites,
+  ]);
+
+  // ========================================
+  // REFRESH WHEN RETURNING TO HOME
+  // ========================================
+
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log(
+        "Window focused - refreshing vehicles"
+      );
+
+      fetchVehicles();
+      fetchFavorites();
+    };
+
+    const handlePageShow = () => {
+      console.log(
+        "Page shown - refreshing vehicles"
+      );
+
+      fetchVehicles();
+      fetchFavorites();
+    };
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+    window.addEventListener(
+      "pageshow",
+      handlePageShow
+    );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
+      window.removeEventListener(
+        "pageshow",
+        handlePageShow
+      );
+    };
+  }, [
+    fetchVehicles,
+    fetchFavorites,
+  ]);
 
   // ========================================
   // ADD / REMOVE FAVORITE
@@ -99,6 +188,8 @@ const Home = () => {
   const toggleFavorite = async (
     vehicleId: string
   ) => {
+    const token = getToken();
+
     if (!token) {
       navigate("/login");
       return;
@@ -108,6 +199,10 @@ const Home = () => {
       favoriteIds.includes(vehicleId);
 
     try {
+      // ====================================
+      // REMOVE FAVORITE
+      // ====================================
+
       if (isFavorite) {
         await axios.delete(
           `${API_URL}/api/favorites/${vehicleId}`,
@@ -124,7 +219,14 @@ const Home = () => {
             (id) => id !== vehicleId
           )
         );
-      } else {
+
+      }
+
+      // ====================================
+      // ADD FAVORITE
+      // ====================================
+
+      else {
         await axios.post(
           `${API_URL}/api/favorites/${vehicleId}`,
           {},
@@ -141,6 +243,7 @@ const Home = () => {
           vehicleId,
         ]);
       }
+
     } catch (error) {
       console.error(
         "Favorite error:",
@@ -159,6 +262,7 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+
     navigate("/login");
   };
 
@@ -173,7 +277,9 @@ const Home = () => {
 
       <nav className="navbar">
 
-        <h1>Car Dealership</h1>
+        <h1>
+          Car Dealership
+        </h1>
 
         <div className="navbar-actions">
 
@@ -216,7 +322,7 @@ const Home = () => {
 
         </div>
 
-        {/* ERROR MESSAGE */}
+        {/* ================= ERROR MESSAGE ================= */}
 
         {message && (
           <p className="error-message">
@@ -228,178 +334,202 @@ const Home = () => {
 
         <div className="vehicle-grid">
 
-          {vehicles.map((vehicle) => {
+          {vehicles.length === 0 ? (
 
-            const isFavorite =
-              favoriteIds.includes(
-                vehicle._id
-              );
+            <div className="no-results">
 
-            return (
+              <h3>
+                No vehicles available
+              </h3>
 
-              <div
-                className="vehicle-card"
-                key={vehicle._id}
-              >
+              <p>
+                There are currently no
+                vehicles in stock.
+              </p>
 
-                {/* ================= IMAGE ================= */}
+            </div>
 
-                <div className="vehicle-card-top">
+          ) : (
 
-                  <div className="vehicle-image-container">
+            vehicles.map((vehicle) => {
 
-                    {vehicle.imageUrl ? (
+              const isFavorite =
+                favoriteIds.includes(
+                  vehicle._id
+                );
 
-                      <img
-                        src={vehicle.imageUrl}
-                        alt={`${vehicle.make} ${vehicle.model}`}
-                        className="vehicle-image"
-                        onLoad={() => {
-                          console.log(
-                            "IMAGE LOADED:",
+              return (
+
+                <div
+                  className="vehicle-card"
+                  key={vehicle._id}
+                >
+
+                  {/* ================= IMAGE ================= */}
+
+                  <div className="vehicle-card-top">
+
+                    <div className="vehicle-image-container">
+
+                      {vehicle.imageUrl ? (
+
+                        <img
+                          src={vehicle.imageUrl}
+                          alt={`${vehicle.make} ${vehicle.model}`}
+                          className="vehicle-image"
+
+                          onLoad={() => {
+                            console.log(
+                              "IMAGE LOADED:",
+                              vehicle.imageUrl
+                            );
+                          }}
+
+                          onError={(e) => {
+
+                            console.error(
+                              "IMAGE FAILED:",
+                              vehicle.imageUrl
+                            );
+
+                            e.currentTarget.style.display =
+                              "none";
+
+                            const fallback =
+                              e.currentTarget
+                                .parentElement
+                                ?.querySelector(
+                                  ".vehicle-fallback"
+                                );
+
+                            if (fallback) {
+                              (
+                                fallback as HTMLElement
+                              ).style.display =
+                                "flex";
+                            }
+
+                          }}
+                        />
+
+                      ) : null}
+
+                      {/* FALLBACK */}
+
+                      <div
+                        className="vehicle-fallback"
+                        style={{
+                          display:
                             vehicle.imageUrl
-                          );
+                              ? "none"
+                              : "flex",
                         }}
-                        onError={(e) => {
-                          console.error(
-                            "IMAGE FAILED:",
-                            vehicle.imageUrl
-                          );
+                      >
+                        🚗
+                      </div>
 
-                          e.currentTarget.style.display =
-                            "none";
-
-                          const fallback =
-                            e.currentTarget
-                              .parentElement
-                              ?.querySelector(
-                                ".vehicle-fallback"
-                              );
-
-                          if (fallback) {
-                            (
-                              fallback as HTMLElement
-                            ).style.display =
-                              "flex";
-                          }
-                        }}
-                      />
-
-                    ) : null}
-
-                    {/* FALLBACK */}
-
-                    <div
-                      className="vehicle-fallback"
-                      style={{
-                        display:
-                          vehicle.imageUrl
-                            ? "none"
-                            : "flex",
-                      }}
-                    >
-                      🚗
                     </div>
+
+                    {/* ================= FAVORITE ================= */}
+
+                    <button
+                      type="button"
+                      className={`favorite-button ${
+                        isFavorite
+                          ? "favorite-active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        toggleFavorite(
+                          vehicle._id
+                        )
+                      }
+                      title={
+                        isFavorite
+                          ? "Remove from favorites"
+                          : "Add to favorites"
+                      }
+                    >
+                      {isFavorite
+                        ? "❤️"
+                        : "♡"}
+                    </button>
 
                   </div>
 
-                  {/* ================= FAVORITE ================= */}
+                  {/* ================= NAME ================= */}
+
+                  <h3>
+                    {vehicle.make}{" "}
+                    {vehicle.model}
+                  </h3>
+
+                  {/* ================= DETAILS ================= */}
+
+                  <div className="vehicle-details">
+
+                    <p>
+                      <strong>
+                        Year:
+                      </strong>{" "}
+                      {vehicle.year}
+                    </p>
+
+                    <p>
+                      <strong>
+                        Category:
+                      </strong>{" "}
+                      {vehicle.category}
+                    </p>
+
+                    <p className="vehicle-price">
+                      ₹
+                      {vehicle.price.toLocaleString(
+                        "en-IN"
+                      )}
+                    </p>
+
+                    <p>
+                      <strong>
+                        Available:
+                      </strong>{" "}
+
+                      <span
+                        className={
+                          vehicle.quantity === 0
+                            ? "out-stock"
+                            : vehicle.quantity <= 3
+                            ? "low-stock"
+                            : "in-stock"
+                        }
+                      >
+                        {vehicle.quantity}
+                      </span>
+
+                    </p>
+
+                  </div>
+
+                  {/* ================= PURCHASE ================= */}
 
                   <button
                     type="button"
-                    className={`favorite-button ${
-                      isFavorite
-                        ? "favorite-active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      toggleFavorite(
-                        vehicle._id
-                      )
-                    }
-                    title={
-                      isFavorite
-                        ? "Remove from favorites"
-                        : "Add to favorites"
+                    className="purchase-button"
+                    disabled={
+                      vehicle.quantity === 0
                     }
                   >
-                    {isFavorite
-                      ? "❤️"
-                      : "♡"}
+                    {vehicle.quantity === 0
+                      ? "Out of Stock"
+                      : "Purchase"}
                   </button>
 
                 </div>
 
-                {/* ================= NAME ================= */}
+              );
+            })
 
-                <h3>
-                  {vehicle.make}{" "}
-                  {vehicle.model}
-                </h3>
-
-                {/* ================= DETAILS ================= */}
-
-                <div className="vehicle-details">
-
-                  <p>
-                    <strong>
-                      Year:
-                    </strong>{" "}
-                    {vehicle.year}
-                  </p>
-
-                  <p>
-                    <strong>
-                      Category:
-                    </strong>{" "}
-                    {vehicle.category}
-                  </p>
-
-                  <p className="vehicle-price">
-                    ₹
-                    {vehicle.price.toLocaleString(
-                      "en-IN"
-                    )}
-                  </p>
-
-                  <p>
-                    <strong>
-                      Quantity:
-                    </strong>{" "}
-
-                    <span
-                      className={
-                        vehicle.quantity === 0
-                          ? "out-stock"
-                          : vehicle.quantity <= 3
-                          ? "low-stock"
-                          : "in-stock"
-                      }
-                    >
-                      {vehicle.quantity}
-                    </span>
-
-                  </p>
-
-                </div>
-
-                {/* ================= PURCHASE ================= */}
-
-                <button
-                  type="button"
-                  className="purchase-button"
-                  disabled={
-                    vehicle.quantity === 0
-                  }
-                >
-                  {vehicle.quantity === 0
-                    ? "Out of Stock"
-                    : "Purchase"}
-                </button>
-
-              </div>
-            );
-          })}
+          )}
 
         </div>
 
