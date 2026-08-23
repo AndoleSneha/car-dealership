@@ -778,22 +778,25 @@ function AdminDashboard({
                 <div className="admin-card-image">
 
                   {vehicle.imageUrl ? (
-
                     <img
                       src={vehicle.imageUrl}
                       alt={`${vehicle.make} ${vehicle.model}`}
                       onError={(e) => {
-                        e.currentTarget.style.display =
-                          "none";
+                        e.currentTarget.style.display = "none";
+
+                        const parent =
+                          e.currentTarget.parentElement;
+
+                        if (parent) {
+                          parent.innerHTML =
+                            `<div class="admin-card-icon">🚗</div>`;
+                        }
                       }}
                     />
-
                   ) : (
-
                     <div className="admin-card-icon">
                       🚗
                     </div>
-
                   )}
 
                 </div>

@@ -47,30 +47,30 @@ const Favorites = ({
   const fetchFavorites = async () => {
 
     if (!token) {
-      setMessage(
-        "Please login first"
-      );
-
+      setMessage("Please login first");
       setLoading(false);
       return;
     }
 
     try {
 
-      const response =
-        await axios.get(
-          `${API_URL}/api/favorites`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
+      const response = await axios.get(
+        `${API_URL}/api/favorites`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+      const validFavorites =
+        response.data.filter(
+          (favorite: Favorite) =>
+            favorite.vehicle
         );
 
-      setFavorites(
-        response.data
-      );
+      setFavorites(validFavorites);
 
     } catch (error) {
 
@@ -90,46 +90,45 @@ const Favorites = ({
     }
   };
 
-  const removeFavorite =
-    async (vehicleId: string) => {
+  const removeFavorite = async (
+    vehicleId: string
+  ) => {
 
-      if (!token) return;
+    if (!token) return;
 
-      try {
+    try {
 
-        await axios.delete(
-          `${API_URL}/api/favorites/${vehicleId}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+      await axios.delete(
+        `${API_URL}/api/favorites/${vehicleId}`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
 
-        setFavorites(
-          (currentFavorites) =>
-            currentFavorites.filter(
-              (favorite) =>
-                favorite.vehicle._id !==
-                vehicleId
-            )
-        );
+      setFavorites(
+        (currentFavorites) =>
+          currentFavorites.filter(
+            (favorite) =>
+              favorite.vehicle._id !==
+              vehicleId
+          )
+      );
 
-      } catch (error) {
+    } catch (error) {
 
-        console.error(error);
+      console.error(
+        "Remove favorite error:",
+        error
+      );
 
-        setMessage(
-          "Unable to remove favorite"
-        );
-
-      }
-    };
-
-  // ========================================
-  // LOADING
-  // ========================================
+      setMessage(
+        "Unable to remove favorite"
+      );
+    }
+  };
 
   if (loading) {
 
@@ -137,39 +136,24 @@ const Favorites = ({
       <div className="app">
 
         <nav className="navbar">
-
-          <h1>
-            Car Dealership
-          </h1>
-
+          <h1>Car Dealership</h1>
         </nav>
 
         <main className="container">
-
-          <p>
-            Loading favorites...
-          </p>
-
+          <p>Loading favorites...</p>
         </main>
 
       </div>
     );
   }
 
-  // ========================================
-  // PAGE
-  // ========================================
-
   return (
     <div className="app">
 
       {/* NAVBAR */}
-
       <nav className="navbar">
 
-        <h1>
-          Car Dealership
-        </h1>
+        <h1>Car Dealership</h1>
 
         <div className="navbar-actions">
 
@@ -202,18 +186,14 @@ const Favorites = ({
       </nav>
 
       {/* MAIN */}
-
       <main className="container">
 
         <div className="page-heading">
 
-          <h2>
-            ❤️ My Favorites
-          </h2>
+          <h2>❤️ My Favorites</h2>
 
           <p>
-            Vehicles you have saved
-            for later.
+            Vehicles you have saved for later.
           </p>
 
         </div>
@@ -224,7 +204,7 @@ const Favorites = ({
           </div>
         )}
 
-        {/* NO FAVORITES */}
+        {/* EMPTY STATE */}
 
         {favorites.length === 0 ? (
 
@@ -236,8 +216,7 @@ const Favorites = ({
 
             <p>
               You haven't added any
-              vehicles to your
-              favorites.
+              vehicles to your favorites.
             </p>
 
             <button
@@ -252,7 +231,7 @@ const Favorites = ({
 
         ) : (
 
-          /* FAVORITE VEHICLES */
+          /* FAVORITES */
 
           <div className="vehicle-grid">
 
@@ -269,8 +248,7 @@ const Favorites = ({
                     key={favorite._id}
                   >
 
-                    {/* IMAGE + REMOVE */}
-
+                    {/* IMAGE */}
                     <div className="vehicle-card-top">
 
                       <div className="vehicle-image-container">
@@ -284,14 +262,25 @@ const Favorites = ({
                             alt={`${vehicle.make} ${vehicle.model}`}
                             className="vehicle-image"
                             onError={(e) => {
+
                               e.currentTarget.style.display =
                                 "none";
+
+                              const parent =
+                                e.currentTarget
+                                  .parentElement;
+
+                              if (parent) {
+                                parent.innerHTML =
+                                  `<div class="vehicle-fallback">🚗</div>`;
+                              }
+
                             }}
                           />
 
                         ) : (
 
-                          <div className="vehicle-icon">
+                          <div className="vehicle-fallback">
                             🚗
                           </div>
 
@@ -299,6 +288,7 @@ const Favorites = ({
 
                       </div>
 
+                      {/* REMOVE FAVORITE */}
                       <button
                         type="button"
                         className="favorite-button favorite-active"
@@ -315,14 +305,12 @@ const Favorites = ({
                     </div>
 
                     {/* NAME */}
-
                     <h3>
                       {vehicle.make}{" "}
                       {vehicle.model}
                     </h3>
 
                     {/* DETAILS */}
-
                     <div className="vehicle-details">
 
                       <p>
@@ -350,31 +338,29 @@ const Favorites = ({
                         <strong>
                           Available:
                         </strong>{" "}
+
                         <span
                           className={
-                            vehicle.quantity ===
-                            0
+                            vehicle.quantity === 0
                               ? "out-stock"
-                              : vehicle.quantity <=
-                                3
+                              : vehicle.quantity <= 3
                               ? "low-stock"
                               : "in-stock"
                           }
                         >
                           {vehicle.quantity}
                         </span>
+
                       </p>
 
                     </div>
 
                     {/* PURCHASE */}
-
                     <button
                       type="button"
                       className="purchase-button"
                       disabled={
-                        vehicle.quantity ===
-                        0
+                        vehicle.quantity === 0
                       }
                     >
                       {vehicle.quantity === 0

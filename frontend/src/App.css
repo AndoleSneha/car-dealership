@@ -1446,3 +1446,1190 @@ select {
     grid-template-columns: 1fr;
   }
 }
+/* ========================================
+   VEHICLE IMAGES
+======================================== */
+
+.vehicle-image-container {
+  width: 100%;
+  height: 230px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.vehicle-fallback {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+}
+
+/* ========================================
+   VEHICLE IMAGE AREA
+======================================== */
+
+/* ========================================
+   VEHICLE IMAGE
+======================================== */
+
+.vehicle-image-container {
+  width: 100%;
+  height: 250px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+/* Actual car image */
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+
+  background: #ffffff;
+
+  transition: transform 0.3s ease;
+}
+
+/* Slight zoom on hover */
+.vehicle-card:hover .vehicle-image {
+  transform: scale(1.03);
+}
+
+/* Fallback when image is unavailable */
+.vehicle-fallback {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  font-size: 60px;
+}
+
+/* ========================================
+   VEHICLE CARD
+======================================== */
+
+.vehicle-card {
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  padding: 24px;
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 620px;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+/* ========================================
+   IMAGE + FAVORITE
+======================================== */
+
+.vehicle-card-top {
+  position: relative;
+
+  margin-bottom: 18px;
+}
+
+.vehicle-card-top .favorite-button {
+  position: absolute;
+
+  top: 12px;
+  right: 12px;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  z-index: 2;
+}
+
+.vehicle-card h3 {
+  margin: 0 0 16px 0;
+
+  font-size: 23px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+  min-height: 30px;
+}
+
+/* ========================================
+   VEHICLE DETAILS
+======================================== */
+
+.vehicle-details {
+  border-top: 1px solid #e5e7eb;
+
+  padding-top: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  flex: 1;
+}
+
+.vehicle-details p {
+  margin: 0;
+
+  font-size: 15px;
+
+  color: #475569;
+}
+
+.vehicle-details strong {
+  color: #0f172a;
+}
+
+.vehicle-price {
+  margin-top: 8px !important;
+
+  font-size: 25px !important;
+
+  font-weight: 800;
+
+  color: #2563eb !important;
+}
+
+.in-stock,
+.low-stock,
+.out-stock {
+  font-weight: 700;
+
+  padding: 4px 10px;
+
+  border-radius: 20px;
+
+  display: inline-block;
+}
+
+.in-stock {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.low-stock {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.out-stock {
+  color: #dc2626;
+  background: #fef2f2;
+}
+/* ========================================
+   PURCHASE BUTTON
+======================================== */
+
+.purchase-button {
+  width: 100%;
+
+  margin-top: 20px;
+
+  padding: 14px 20px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+.purchase-button:disabled {
+  background: #cbd5e1;
+
+  cursor: not-allowed;
+}
+
+/* ========================================
+   ADMIN CARD
+======================================== */
+
+.admin-vehicle-card {
+  min-height: 700px;
+}
+
+
+/* ADMIN ACTION BUTTONS */
+
+.admin-card-actions {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1.3fr
+    1fr;
+
+  gap: 10px;
+
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+
+/* EDIT */
+
+.edit-button {
+  padding: 12px 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid #bfdbfe;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.edit-button:hover {
+  background: #dbeafe;
+}
+
+
+/* RESTOCK */
+
+.restock-button {
+  padding: 12px 10px;
+
+  border-radius: 10px;
+
+  border: none;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.restock-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* DELETE */
+
+.delete-button {
+  padding: 12px 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.delete-button:hover {
+  background: #fee2e2;
+}
+
+.vehicle-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 26px;
+
+  align-items: stretch;
+}
+
+@media (max-width: 1000px) {
+  .vehicle-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .vehicle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   FINAL UI OVERRIDES
+   Clean white vehicle images + organized admin cards
+   ========================================================= */
+
+/* ---------- HOME / VEHICLE IMAGES ---------- */
+
+.vehicle-image-container {
+  width: 100%;
+  height: 230px;
+  background: #ffffff !important;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  padding: 0 !important;
+  display: block;
+  background: #ffffff !important;
+  transition: transform 0.25s ease;
+}
+
+.vehicle-card:hover .vehicle-image {
+  transform: scale(1.02);
+}
+
+.vehicle-fallback {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 58px;
+}
+
+/* Keep favorite button neatly over the image */
+.vehicle-card-top {
+  position: relative;
+  display: block;
+  margin-bottom: 18px;
+}
+
+.vehicle-card-top .favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+}
+
+/* ---------- ADMIN DASHBOARD ---------- */
+
+.admin-container {
+  min-height: 100vh;
+  padding: 40px 5%;
+  background: #f5f7fb !important;
+}
+
+.admin-header {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.admin-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Inventory heading */
+.inventory-title {
+  margin: 32px 0 20px;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* Three equal cards */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* Clean card */
+.admin-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 0 0 20px !important;
+  box-shadow: 0 7px 22px rgba(15, 23, 42, 0.07);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.admin-card::before {
+  display: none !important;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  border-color: #bfdbfe !important;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.11);
+}
+
+/* ---------- ADMIN IMAGE ---------- */
+
+.admin-card-image {
+  width: calc(100% - 32px);
+  height: 220px;
+  margin: 16px;
+  margin-bottom: 18px;
+
+  background: #ffffff !important;
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.admin-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  padding: 0 !important;
+  display: block;
+  background: #ffffff !important;
+}
+
+.admin-card-icon {
+  width: 100%;
+  height: 100%;
+  background: #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 58px;
+}
+
+/* ---------- ADMIN CARD CONTENT ---------- */
+
+.admin-card > h2,
+.admin-card > p {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.admin-card h2 {
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+  min-height: 27px;
+  font-size: 22px !important;
+  line-height: 1.25;
+  font-weight: 800;
+  color: #111827;
+}
+
+.admin-card p {
+  margin-top: 0 !important;
+  margin-bottom: 11px !important;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.admin-card p strong {
+  color: #334155;
+}
+
+/* Price */
+.admin-card p:nth-of-type(3) {
+  margin-top: 6px !important;
+  margin-bottom: 12px !important;
+  font-size: 18px;
+  font-weight: 800;
+  color: #2563eb !important;
+}
+
+/* Quantity */
+.admin-card p:nth-of-type(4) {
+  align-self: flex-start;
+  display: inline-flex !important;
+  width: fit-content;
+  margin-top: 2px !important;
+  margin-bottom: 0 !important;
+  padding: 7px 12px;
+
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ---------- ADMIN ACTIONS ---------- */
+
+.admin-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 10px;
+
+  margin-top: auto !important;
+  padding: 18px 20px 0 !important;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin-actions button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 8px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Edit */
+.admin-actions .edit-button {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-actions .edit-button:hover {
+  background: #dbeafe;
+}
+
+/* Restock */
+.admin-actions .restock-button {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid #2563eb;
+}
+
+.admin-actions .restock-button:hover {
+  background: #1d4ed8;
+}
+
+/* Delete */
+.admin-actions .delete-button {
+  background: #fff1f2;
+  color: #dc2626;
+  border: 1px solid #fecdd3;
+}
+
+.admin-actions .delete-button:hover {
+  background: #ffe4e6;
+}
+
+/* ---------- IMAGE PREVIEW IN ADD/EDIT FORM ---------- */
+
+.image-preview {
+  background: #ffffff !important;
+}
+
+.image-preview img {
+  background: #ffffff;
+  object-fit: contain;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1100px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-container {
+    padding: 25px 18px;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card-image {
+    height: 220px;
+  }
+
+  .admin-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 450px) {
+  .vehicle-image-container {
+    height: 200px;
+  }
+
+  .admin-card-image {
+    height: 200px;
+  }
+}
+
+/* =====================================================
+   FINAL ADMIN DASHBOARD CARD FIX
+   ===================================================== */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* CARD */
+
+.admin-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+
+  min-height: 520px;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+/* IMAGE */
+
+.admin-card-image {
+  width: 100%;
+  height: 210px;
+
+  background: #f8fafc;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  flex-shrink: 0;
+}
+
+.admin-card-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  padding: 15px;
+
+  display: block;
+}
+
+/* FALLBACK CAR ICON */
+
+.admin-card-icon {
+  width: 70px;
+  height: 70px;
+
+  border-radius: 16px;
+
+  background: #eff6ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 38px;
+}
+
+/* CARD CONTENT */
+
+.admin-card > h2,
+.admin-card > p {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.admin-card h2 {
+  margin-top: 18px;
+  margin-bottom: 14px;
+
+  font-size: 20px;
+  line-height: 1.3;
+
+  font-weight: 800;
+
+  color: #111827;
+}
+
+/* NORMAL DETAILS */
+
+.admin-card p {
+  margin-top: 7px;
+  margin-bottom: 7px;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: #64748b;
+}
+
+.admin-card p strong {
+  color: #334155;
+}
+
+/* PRICE - NORMAL SIZE */
+
+.admin-card p:nth-of-type(3) {
+  margin-top: 12px;
+  margin-bottom: 10px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #2563eb;
+}
+
+/* QUANTITY */
+
+.admin-card p:nth-of-type(4) {
+  display: inline-block;
+
+  width: fit-content;
+
+  margin-top: 6px;
+  margin-bottom: 0;
+
+  padding: 6px 11px;
+
+  background: #ecfdf5;
+  color: #047857;
+
+  border-radius: 20px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ACTION AREA */
+
+.admin-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1.2fr 1fr;
+
+  gap: 9px;
+
+  margin-top: auto;
+
+  padding: 18px 20px 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ALL ACTION BUTTONS */
+
+.admin-actions button {
+  min-height: 40px;
+
+  padding: 9px 8px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-actions button:hover {
+  transform: translateY(-1px);
+}
+
+/* EDIT */
+
+.edit-button {
+  background: #eff6ff;
+  color: #2563eb;
+
+  border: 1px solid #bfdbfe;
+}
+
+.edit-button:hover {
+  background: #dbeafe;
+}
+
+/* RESTOCK */
+
+.restock-button {
+  background: #2563eb;
+  color: white;
+
+  border: 1px solid #2563eb;
+}
+
+.restock-button:hover {
+  background: #1d4ed8;
+}
+
+/* DELETE */
+
+.delete-button {
+  background: #fff1f2;
+  color: #dc2626;
+
+  border: 1px solid #fecdd3;
+}
+
+.delete-button:hover {
+  background: #ffe4e6;
+}
+
+/* =====================================================
+   ADMIN RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 1100px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-container {
+    padding: 25px 18px;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card {
+    min-height: auto;
+  }
+
+  .admin-card-image {
+    height: 210px;
+  }
+
+  .admin-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =====================================================
+   FINAL ADMIN CARD ALIGNMENT FIX
+   ===================================================== */
+
+.admin-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 540px;
+}
+
+/* Image */
+.admin-card-image {
+  width: 100%;
+  height: 210px;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.admin-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 14px;
+  display: block;
+}
+
+/* ===============================
+   CONTENT ALIGNMENT
+   =============================== */
+
+/* Title */
+.admin-card > h2 {
+  margin: 20px 20px 14px 20px;
+
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* Year + Category + Price + Quantity */
+.admin-card > p {
+  margin-left: 20px !important;
+  margin-right: 20px !important;
+
+  font-size: 14px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+/* Year */
+.admin-card > p:nth-of-type(1) {
+  margin-top: 4px !important;
+  margin-bottom: 7px !important;
+}
+
+/* Category */
+.admin-card > p:nth-of-type(2) {
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+}
+
+/* ===============================
+   PRICE
+   =============================== */
+
+.admin-card > p:nth-of-type(3) {
+  margin-left: 20px !important;
+  margin-right: 20px !important;
+
+  margin-top: 8px !important;
+  margin-bottom: 10px !important;
+
+  font-size: 16px !important;
+  line-height: 1.5;
+
+  font-weight: 700 !important;
+
+  color: #2563eb !important;
+}
+
+/* ===============================
+   QUANTITY
+   =============================== */
+
+.admin-card > p:nth-of-type(4) {
+  display: block;
+
+  width: fit-content;
+
+  margin-left: 20px !important;
+  margin-right: 20px !important;
+
+  margin-top: 2px !important;
+  margin-bottom: 0 !important;
+
+  padding: 6px 11px;
+
+  background: #ecfdf5;
+
+  color: #047857 !important;
+
+  border-radius: 20px;
+
+  font-size: 13px !important;
+  font-weight: 700 !important;
+
+  line-height: 1.4;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+.admin-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1.2fr 1fr;
+
+  gap: 9px;
+
+  margin-top: auto;
+
+  padding: 18px 20px 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin-actions button {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 8px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* Edit */
+.edit-button {
+  background: #eff6ff;
+  color: #2563eb;
+
+  border: 1px solid #bfdbfe;
+}
+
+/* Restock */
+.restock-button {
+  background: #2563eb;
+  color: white;
+
+  border: 1px solid #2563eb;
+}
+
+/* Delete */
+.delete-button {
+  background: #fff1f2;
+  color: #dc2626;
+
+  border: 1px solid #fecdd3;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+
+@media (max-width: 1100px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card {
+    min-height: auto;
+  }
+
+  .admin-actions {
+    grid-template-columns: 1fr;
+  }
+}

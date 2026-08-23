@@ -11,6 +11,7 @@ interface Vehicle {
   category: string;
   price: number;
   quantity: number;
+  imageUrl: string;
 }
 
 interface User {
@@ -90,6 +91,7 @@ function App() {
       console.error("Token error:", err);
 
       localStorage.removeItem("token");
+
       setToken(null);
       setUser(null);
     }
@@ -248,9 +250,11 @@ function App() {
 
       const data = await response.json();
 
+      console.log("VEHICLES FROM BACKEND:", data.vehicles);
+
       setVehicles(data.vehicles || []);
     } catch (err) {
-      console.error(err);
+      console.error("Vehicle loading error:", err);
       setError("Unable to load vehicles");
     }
   };
@@ -393,6 +397,7 @@ function App() {
       }
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to connect to the server"
       );
@@ -403,7 +408,9 @@ function App() {
      PURCHASE
   ========================================= */
 
-  const handlePurchase = async (id: string) => {
+  const handlePurchase = async (
+    id: string
+  ) => {
     try {
       setMessage("");
       setError("");
@@ -517,6 +524,7 @@ function App() {
     return (
       <div className="login-page">
         <div className="login-card">
+
           <div className="login-logo">
             🚗
           </div>
@@ -728,7 +736,11 @@ function App() {
 
   return (
     <div className="app">
+
+      {/* NAVBAR */}
+
       <nav className="navbar">
+
         <h1>Car Dealership</h1>
 
         <div className="navbar-actions">
@@ -770,19 +782,25 @@ function App() {
           </button>
 
         </div>
+
       </nav>
+
+      {/* MAIN */}
 
       <main className="container">
 
         <div className="page-heading">
           <div>
+
             <h2>
               Available Vehicles
             </h2>
 
             <p>
               Find your perfect vehicle
+              from our collection.
             </p>
+
           </div>
         </div>
 
@@ -791,6 +809,7 @@ function App() {
         <div className="filter-box">
 
           <div className="filter-group">
+
             <label>
               Search
             </label>
@@ -803,9 +822,11 @@ function App() {
                 setSearch(e.target.value)
               }
             />
+
           </div>
 
           <div className="filter-group">
+
             <label>
               Category
             </label>
@@ -825,9 +846,11 @@ function App() {
                 </option>
               ))}
             </select>
+
           </div>
 
           <div className="filter-group">
+
             <label>
               Maximum Price
             </label>
@@ -843,6 +866,7 @@ function App() {
                 )
               }
             />
+
           </div>
 
           <button
@@ -906,13 +930,51 @@ function App() {
                     key={vehicle._id}
                   >
 
-                    {/* CAR ICON + FAVORITE */}
+                    {/* IMAGE + FAVORITE */}
 
                     <div className="vehicle-card-top">
 
-                      <div className="vehicle-icon">
-                        🚗
+                      <div className="vehicle-image-container">
+
+                        {vehicle.imageUrl ? (
+                          <img
+                            src={vehicle.imageUrl}
+                            alt={`${vehicle.make} ${vehicle.model}`}
+                            className="vehicle-image"
+                            onError={(e) => {
+                              e.currentTarget.style.display =
+                                "none";
+
+                              const fallback =
+                                e.currentTarget
+                                  .parentElement
+                                  ?.querySelector(
+                                    ".vehicle-fallback"
+                                  ) as HTMLElement | null;
+
+                              if (fallback) {
+                                fallback.style.display =
+                                  "flex";
+                              }
+                            }}
+                          />
+                        ) : null}
+
+                        <div
+                          className="vehicle-fallback"
+                          style={{
+                            display:
+                              vehicle.imageUrl
+                                ? "none"
+                                : "flex",
+                          }}
+                        >
+                          🚗
+                        </div>
+
                       </div>
+
+                      {/* FAVORITE */}
 
                       <button
                         type="button"
@@ -939,10 +1001,14 @@ function App() {
 
                     </div>
 
+                    {/* VEHICLE NAME */}
+
                     <h3>
                       {vehicle.make}{" "}
                       {vehicle.model}
                     </h3>
+
+                    {/* DETAILS */}
 
                     <div className="vehicle-details">
 
@@ -987,6 +1053,8 @@ function App() {
 
                     </div>
 
+                    {/* PURCHASE */}
+
                     <button
                       type="button"
                       className="purchase-button"
@@ -1019,6 +1087,7 @@ function App() {
         </p>
 
       </main>
+
     </div>
   );
 }

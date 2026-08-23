@@ -30,18 +30,35 @@ const Home = () => {
     fetchFavorites();
   }, []);
 
+  // ========================================
+  // GET VEHICLES
+  // ========================================
+
   const fetchVehicles = async () => {
     try {
       const response = await axios.get(
         `${API_URL}/api/vehicles`
       );
 
+      console.log(
+        "HOME VEHICLES:",
+        response.data.vehicles
+      );
+
       setVehicles(response.data.vehicles);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Vehicle loading error:",
+        error
+      );
+
       setMessage("Unable to load vehicles");
     }
   };
+
+  // ========================================
+  // GET FAVORITES
+  // ========================================
 
   const fetchFavorites = async () => {
     if (!token) return;
@@ -56,19 +73,28 @@ const Home = () => {
         }
       );
 
-      const ids = response.data.map(
-        (favorite: { vehicle: Vehicle }) =>
-          favorite.vehicle._id
-      );
+      const ids = response.data
+        .filter(
+          (favorite: any) =>
+            favorite.vehicle
+        )
+        .map(
+          (favorite: { vehicle: Vehicle }) =>
+            favorite.vehicle._id
+        );
 
       setFavoriteIds(ids);
     } catch (error) {
       console.error(
-        "Unable to load favorites",
+        "Unable to load favorites:",
         error
       );
     }
   };
+
+  // ========================================
+  // ADD / REMOVE FAVORITE
+  // ========================================
 
   const toggleFavorite = async (
     vehicleId: string
@@ -87,7 +113,8 @@ const Home = () => {
           `${API_URL}/api/favorites/${vehicleId}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization:
+                `Bearer ${token}`,
             },
           }
         );
@@ -103,7 +130,8 @@ const Home = () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization:
+                `Bearer ${token}`,
             },
           }
         );
@@ -114,22 +142,34 @@ const Home = () => {
         ]);
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Favorite error:",
+        error
+      );
+
       setMessage(
         "Unable to update favorite"
       );
     }
   };
 
+  // ========================================
+  // LOGOUT
+  // ========================================
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
+  // ========================================
+  // PAGE
+  // ========================================
+
   return (
     <div className="app">
 
-      {/* NAVBAR */}
+      {/* ================= NAVBAR ================= */}
 
       <nav className="navbar">
 
@@ -138,6 +178,7 @@ const Home = () => {
         <div className="navbar-actions">
 
           <button
+            type="button"
             className="admin-nav-button"
             onClick={() =>
               navigate("/favorites")
@@ -147,6 +188,7 @@ const Home = () => {
           </button>
 
           <button
+            type="button"
             className="logout-button"
             onClick={handleLogout}
           >
@@ -157,7 +199,7 @@ const Home = () => {
 
       </nav>
 
-      {/* MAIN */}
+      {/* ================= MAIN ================= */}
 
       <main className="container">
 
@@ -174,11 +216,15 @@ const Home = () => {
 
         </div>
 
+        {/* ERROR MESSAGE */}
+
         {message && (
           <p className="error-message">
             {message}
           </p>
         )}
+
+        {/* ================= VEHICLES ================= */}
 
         <div className="vehicle-grid">
 
@@ -190,34 +236,74 @@ const Home = () => {
               );
 
             return (
+
               <div
                 className="vehicle-card"
                 key={vehicle._id}
               >
 
-                {/* IMAGE + FAVORITE */}
+                {/* ================= IMAGE ================= */}
 
                 <div className="vehicle-card-top">
 
                   <div className="vehicle-image-container">
 
                     {vehicle.imageUrl ? (
+
                       <img
                         src={vehicle.imageUrl}
                         alt={`${vehicle.make} ${vehicle.model}`}
                         className="vehicle-image"
+                        onLoad={() => {
+                          console.log(
+                            "IMAGE LOADED:",
+                            vehicle.imageUrl
+                          );
+                        }}
                         onError={(e) => {
+                          console.error(
+                            "IMAGE FAILED:",
+                            vehicle.imageUrl
+                          );
+
                           e.currentTarget.style.display =
                             "none";
+
+                          const fallback =
+                            e.currentTarget
+                              .parentElement
+                              ?.querySelector(
+                                ".vehicle-fallback"
+                              );
+
+                          if (fallback) {
+                            (
+                              fallback as HTMLElement
+                            ).style.display =
+                              "flex";
+                          }
                         }}
                       />
-                    ) : (
-                      <div className="vehicle-icon">
-                        🚗
-                      </div>
-                    )}
+
+                    ) : null}
+
+                    {/* FALLBACK */}
+
+                    <div
+                      className="vehicle-fallback"
+                      style={{
+                        display:
+                          vehicle.imageUrl
+                            ? "none"
+                            : "flex",
+                      }}
+                    >
+                      🚗
+                    </div>
 
                   </div>
+
+                  {/* ================= FAVORITE ================= */}
 
                   <button
                     type="button"
@@ -244,14 +330,14 @@ const Home = () => {
 
                 </div>
 
-                {/* NAME */}
+                {/* ================= NAME ================= */}
 
                 <h3>
                   {vehicle.make}{" "}
                   {vehicle.model}
                 </h3>
 
-                {/* DETAILS */}
+                {/* ================= DETAILS ================= */}
 
                 <div className="vehicle-details">
 
@@ -283,11 +369,9 @@ const Home = () => {
 
                     <span
                       className={
-                        vehicle.quantity ===
-                        0
+                        vehicle.quantity === 0
                           ? "out-stock"
-                          : vehicle.quantity <=
-                            3
+                          : vehicle.quantity <= 3
                           ? "low-stock"
                           : "in-stock"
                       }
@@ -299,7 +383,7 @@ const Home = () => {
 
                 </div>
 
-                {/* PURCHASE */}
+                {/* ================= PURCHASE ================= */}
 
                 <button
                   type="button"
