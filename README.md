@@ -291,16 +291,33 @@ npm run dev
 The frontend runs locally on:
 
 http://localhost:5173
-🌐 Live Deployment
 
-The application is deployed using Render.
 
-Frontend
-https://car-dealership-frontend-gr3c.onrender.com
-Backend
-https://car-dealership-backend-wd20.onrender.com
+# 🌐🚀 LIVE DEPLOYMENT
 
-The frontend communicates with the deployed Express backend through REST APIs.
+### 🔗 Live Application
+👉 **https://car-dealership-frontend-gr3c.onrender.com**
+
+### 🔗 Backend API
+👉 **https://car-dealership-backend-wd20.onrender.com**
+
+The application is fully deployed and accessible online.
+
+- **Frontend:** React + TypeScript + Vite → deployed on Render
+- **Backend:** Node.js + Express + TypeScript → deployed on Render
+- **Database:** MongoDB Atlas
+- **Authentication:** JWT
+- **API Communication:** REST API using Axios
+
+### 🚀 Try the Application
+
+**Customer:**  
+Visit the live application and register/login to browse vehicles, search, filter, purchase, and add vehicles to favorites.
+
+**Admin:**  
+Login with an authorized admin account to access the Admin Dashboard and manage the vehicle inventory.
+
+
 
 🧪 Testing
 
