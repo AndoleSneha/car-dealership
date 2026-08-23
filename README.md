@@ -1,8 +1,8 @@
 # 🚗 Car Dealership Management System
 
-A full-stack car dealership management application built with React, TypeScript, Node.js, Express, MongoDB, and JWT authentication.
+A full-stack **Car Dealership Management System** built using React, TypeScript, Node.js, Express, MongoDB, and JWT authentication.
 
-The application provides separate functionality for customers and administrators, including vehicle browsing, filtering, purchasing, inventory management, and role-based access control.
+The application provides separate experiences for **customers and administrators**, allowing customers to browse and favorite vehicles while administrators can manage the dealership inventory through a dedicated dashboard.
 
 ---
 
@@ -16,43 +16,91 @@ The application provides separate functionality for customers and administrators
 - Search vehicles by make or model
 - Filter vehicles by category
 - Filter vehicles by maximum price
+- View vehicle images
+- View vehicle price and availability
+- Stock availability indicators
 - Purchase vehicles
 - Real-time quantity updates after purchase
-- Stock availability indicators
+- Add vehicles to favorites
+- Remove vehicles from favorites
+- Dedicated Favorites page
 - Logout functionality
+
+---
 
 ### 👑 Admin Features
 
 - Secure admin authentication
-- Role-based Admin Dashboard
-- View dealership inventory
+- Role-based access control
+- Dedicated Admin Dashboard
+- View complete dealership inventory
 - Add new vehicles
+- Edit existing vehicles
+- Update vehicle information
+- Add vehicle images using image URLs
 - Restock vehicles
 - Delete vehicles
 - View updated inventory quantities
+- Manage vehicle pricing
+- Manage vehicle categories
+- Manage vehicle availability
 - Return to customer vehicle view
+
+---
+
+### ❤️ Favorites / Wishlist
+
+Customers can save vehicles for later using the Favorites feature.
+
+Features include:
+
+- Add a vehicle to favorites
+- Remove a vehicle from favorites
+- View all favorite vehicles
+- Favorites are associated with the authenticated user
+- Favorite state is maintained across sessions using JWT authentication
+
+---
+
+### 🖼️ Vehicle Images
+
+Each vehicle supports an image URL.
+
+Vehicle images are displayed in:
+
+- Customer Vehicle Page
+- Favorites Page
+- Admin Dashboard
+
+If an image cannot be loaded, the application displays a fallback vehicle icon.
+
+---
 
 ### 🔐 Security
 
-- Password hashing using bcrypt
-- JWT authentication
+- Password hashing using `bcrypt`
+- JWT-based authentication
 - Role-based authorization
-- Protected vehicle operations
+- Protected admin operations
+- Protected favorite operations
+- Protected vehicle management operations
 - Environment variables for sensitive configuration
 - `.env` excluded from Git
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-### Frontend
+## Frontend
 
 - React
 - TypeScript
 - Vite
+- React Router
+- Axios
 - CSS
 
-### Backend
+## Backend
 
 - Node.js
 - Express.js
@@ -62,14 +110,20 @@ The application provides separate functionality for customers and administrators
 - JWT
 - bcrypt
 
-### Testing
+## Testing
 
 - Jest
 - Supertest
 
+## Deployment
+
+- Render
+- MongoDB Atlas
+- GitHub
+
 ---
 
-## 🏗️ Project Architecture
+# 🏗️ Project Architecture
 
 ```text
 car-dealership/
@@ -92,6 +146,9 @@ car-dealership/
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
+│   │   │   ├── Home.tsx
+│   │   │   └── Favorites.tsx
+│   │   │
 │   │   ├── assets/
 │   │   ├── AdminDashboard.tsx
 │   │   ├── App.tsx
@@ -101,57 +158,82 @@ car-dealership/
 │   ├── package.json
 │   └── vite.config.ts
 │
-└── .gitignore
+├── .gitignore
+└── README.md
 🔄 Application Flow
-User
- │
- ▼
-React Frontend
- │
- │ HTTP Requests
- ▼
-Express REST API
- │
- ├── Authentication
- │     ├── Register
- │     └── Login
- │
- ├── Vehicle Operations
- │     ├── Get Vehicles
- │     ├── Purchase
- │     ├── Add Vehicle
- │     ├── Restock
- │     └── Delete
- │
- ▼
-MongoDB
+                    ┌─────────────────┐
+                    │      User       │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │ React Frontend  │
+                    └────────┬────────┘
+                             │
+                       HTTP Requests
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │  Express REST   │
+                    │      API        │
+                    └────────┬────────┘
+                             │
+             ┌───────────────┼────────────────┐
+             │               │                │
+             ▼               ▼                ▼
+      Authentication     Vehicles         Favorites
+             │               │                │
+             └───────────────┼────────────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │     MongoDB     │
+                    └─────────────────┘
 🔑 Authentication Flow
-User Login
-    │
-    ▼
-Express API
-    │
-    ▼
-MongoDB
-    │
-    ▼
-bcrypt Password Verification
-    │
-    ▼
-JWT Token
-    │
-    ▼
-React Frontend
-    │
-    ▼
-Role Detection
-    │
- ┌──┴───────────┐
- ▼              ▼
-User          Admin
- │              │
- ▼              ▼
-Vehicles    Admin Dashboard
+User Registration / Login
+          │
+          ▼
+     Express API
+          │
+          ▼
+       MongoDB
+          │
+          ▼
+ bcrypt Password Verification
+          │
+          ▼
+      JWT Token
+          │
+          ▼
+   React Local Storage
+          │
+          ▼
+     Role Detection
+          │
+      ┌───┴────┐
+      ▼        ▼
+    User      Admin
+      │        │
+      ▼        ▼
+  Vehicles   Dashboard
+🚘 Vehicle Management Flow
+Customer
+Browse Vehicles
+      │
+      ├── Search
+      ├── Category Filter
+      ├── Price Filter
+      ├── View Details
+      ├── Add Favorite
+      └── Purchase
+Administrator
+Admin Dashboard
+      │
+      ├── Add Vehicle
+      ├── Edit Vehicle
+      ├── Restock Vehicle
+      ├── Delete Vehicle
+      └── View Inventory
 📡 API Endpoints
 Authentication
 Method	Endpoint	Description
@@ -160,18 +242,28 @@ POST	/api/auth/login	Login user
 Vehicles
 Method	Endpoint	Description
 GET	/api/vehicles	Get available vehicles
-POST	/api/vehicles	Add a vehicle
+GET	/api/vehicles/search	Search/filter vehicles
+POST	/api/vehicles	Add a new vehicle
+PATCH	/api/vehicles/:id	Update a vehicle
 POST	/api/vehicles/:id/purchase	Purchase a vehicle
-PATCH	/api/vehicles/:id/restock	Restock vehicle
-DELETE	/api/vehicles/:id	Delete vehicle
+PATCH	/api/vehicles/:id/restock	Restock a vehicle
+DELETE	/api/vehicles/:id	Delete a vehicle
 
-Admin-only operations require a valid JWT with the admin role.
+Admin-only vehicle management operations require a valid JWT with the admin role.
+
+❤️ Favorites
+Method	Endpoint	Description
+GET	/api/favorites	Get user's favorites
+POST	/api/favorites/:vehicleId	Add vehicle to favorites
+DELETE	/api/favorites/:vehicleId	Remove vehicle from favorites
+
+Favorite operations require a valid JWT.
 
 ⚙️ Installation
-1. Clone the repository
+1. Clone the Repository
 git clone https://github.com/AndoleSneha/car-dealership.git
 cd car-dealership
-2. Backend setup
+2. Backend Setup
 cd backend
 npm install
 
@@ -185,10 +277,10 @@ Start the backend:
 
 npm run dev
 
-The backend runs on:
+The backend runs locally on:
 
-https://car-dealership-backend-wd20.onrender.com
-3. Frontend setup
+http://localhost:5000
+3. Frontend Setup
 
 Open another terminal:
 
@@ -196,9 +288,20 @@ cd frontend
 npm install
 npm run dev
 
-The frontend runs on:
+The frontend runs locally on:
 
 http://localhost:5173
+🌐 Live Deployment
+
+The application is deployed using Render.
+
+Frontend
+https://car-dealership-frontend-gr3c.onrender.com
+Backend
+https://car-dealership-backend-wd20.onrender.com
+
+The frontend communicates with the deployed Express backend through REST APIs.
+
 🧪 Testing
 
 The backend includes automated tests using Jest and Supertest.
@@ -241,37 +344,78 @@ Required variables:
 MONGO_URI=
 JWT_SECRET=
 PORT=5000
+
+The .env file is excluded from Git using .gitignore.
+
 📸 Application
 Customer Vehicle Page
 
-The application provides a clean vehicle browsing interface with:
+The customer interface provides:
 
-Search
+Vehicle browsing
+Vehicle images
+Search by make/model
 Category filtering
 Maximum price filtering
+Price display
 Stock information
+Favorites
 Purchase functionality
-Admin Dashboard
+Responsive vehicle cards
+❤️ Favorites Page
+
+Customers can:
+
+View saved vehicles
+Remove vehicles from favorites
+Return to the vehicle browsing page
+View vehicle images, price, category and availability
+👑 Admin Dashboard
 
 Administrators can manage dealership inventory through:
 
 Add Vehicle
+Edit Vehicle
+Update vehicle information
+Vehicle image management
 Restock
-Delete Vehicle
-Inventory management
+Delete
+Inventory quantity management
+Vehicle price management
+Vehicle category management
+
+The dashboard uses organized vehicle cards for easier inventory management.
+
+📊 Vehicle Information
+
+Each vehicle contains:
+
+Vehicle
+│
+├── Make
+├── Model
+├── Year
+├── Category
+├── Price
+├── Quantity
+└── Image URL
 🎯 Future Improvements
 
 Possible future enhancements include:
 
-Vehicle images
 Pagination
 User purchase history
 Admin analytics dashboard
 Advanced vehicle sorting
 Payment integration
-Cloud deployment
 Email notifications
-Vehicle favorites/wishlist
+Vehicle comparison
+Advanced vehicle details page
+Cloud image storage
+Order management
+Customer reviews and ratings
+Sales analytics
+Admin inventory statistics
 👩‍💻 Author
 
 Sneha Andole
