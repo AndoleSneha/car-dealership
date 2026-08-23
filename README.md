@@ -6,6 +6,38 @@ The application provides separate experiences for **customers and administrators
 
 ---
 
+# 🌐🚀 LIVE DEPLOYMENT
+
+### 🔗 Live Application
+
+👉 **[Open Car Dealership Application](https://car-dealership-frontend-gr3c.onrender.com)**
+
+### ⚙️ Backend API
+
+👉 **[Open Backend API](https://car-dealership-backend-wd20.onrender.com)**
+
+The complete application is deployed and accessible online.
+
+| Component | Technology | Deployment |
+|---|---|---|
+| Frontend | React + TypeScript + Vite | Render |
+| Backend | Node.js + Express + TypeScript | Render |
+| Database | MongoDB Atlas | Cloud |
+| Authentication | JWT | Backend |
+| API Communication | Axios REST API | Backend |
+
+### 🚀 Try the Application
+
+**Customer:**  
+Visit the live application and register/login to browse vehicles, search, filter, purchase, and add vehicles to favorites.
+
+**Admin:**  
+Login with an authorized admin account to access the Admin Dashboard and manage the vehicle inventory.
+
+> 🔐 For security reasons, admin credentials are not included in this repository.
+
+---
+
 ## ✨ Features
 
 ### 👤 Customer Features
@@ -160,7 +192,13 @@ car-dealership/
 │
 ├── .gitignore
 └── README.md
-🔄 Application Flow
+```
+
+---
+
+# 🔄 Application Flow
+
+```text
                     ┌─────────────────┐
                     │      User       │
                     └────────┬────────┘
@@ -187,9 +225,15 @@ car-dealership/
                              │
                              ▼
                     ┌─────────────────┐
-                    │     MongoDB     │
+                    │     MongoDB      │
                     └─────────────────┘
-🔑 Authentication Flow
+```
+
+---
+
+# 🔑 Authentication Flow
+
+```text
 User Registration / Login
           │
           ▼
@@ -216,17 +260,28 @@ User Registration / Login
       │        │
       ▼        ▼
   Vehicles   Dashboard
-🚘 Vehicle Management Flow
-Customer
+```
+
+---
+
+# 🚘 Vehicle Management Flow
+
+### Customer
+
+```text
 Browse Vehicles
       │
       ├── Search
       ├── Category Filter
       ├── Price Filter
-      ├── View Details
+      ├── View Vehicle
       ├── Add Favorite
       └── Purchase
-Administrator
+```
+
+### Administrator
+
+```text
 Admin Dashboard
       │
       ├── Add Vehicle
@@ -234,179 +289,232 @@ Admin Dashboard
       ├── Restock Vehicle
       ├── Delete Vehicle
       └── View Inventory
-📡 API Endpoints
-Authentication
-Method	Endpoint	Description
-POST	/api/auth/register	Register a new user
-POST	/api/auth/login	Login user
-Vehicles
-Method	Endpoint	Description
-GET	/api/vehicles	Get available vehicles
-GET	/api/vehicles/search	Search/filter vehicles
-POST	/api/vehicles	Add a new vehicle
-PATCH	/api/vehicles/:id	Update a vehicle
-POST	/api/vehicles/:id/purchase	Purchase a vehicle
-PATCH	/api/vehicles/:id/restock	Restock a vehicle
-DELETE	/api/vehicles/:id	Delete a vehicle
+```
 
-Admin-only vehicle management operations require a valid JWT with the admin role.
+---
 
-❤️ Favorites
-Method	Endpoint	Description
-GET	/api/favorites	Get user's favorites
-POST	/api/favorites/:vehicleId	Add vehicle to favorites
-DELETE	/api/favorites/:vehicleId	Remove vehicle from favorites
+# 📡 API Endpoints
+
+## Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login user |
+
+## Vehicles
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/vehicles` | Get available vehicles |
+| GET | `/api/vehicles/search` | Search/filter vehicles |
+| POST | `/api/vehicles` | Add a new vehicle |
+| PATCH | `/api/vehicles/:id` | Update a vehicle |
+| POST | `/api/vehicles/:id/purchase` | Purchase a vehicle |
+| PATCH | `/api/vehicles/:id/restock` | Restock a vehicle |
+| DELETE | `/api/vehicles/:id` | Delete a vehicle |
+
+Admin-only vehicle management operations require a valid JWT with the `admin` role.
+
+---
+
+# ❤️ Favorites API
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/favorites` | Get user's favorites |
+| POST | `/api/favorites/:vehicleId` | Add vehicle to favorites |
+| DELETE | `/api/favorites/:vehicleId` | Remove vehicle from favorites |
 
 Favorite operations require a valid JWT.
 
-⚙️ Installation
-1. Clone the Repository
+---
+
+# ⚙️ Installation
+
+## 1. Clone the Repository
+
+```bash
 git clone https://github.com/AndoleSneha/car-dealership.git
 cd car-dealership
-2. Backend Setup
+```
+
+---
+
+## 2. Backend Setup
+
+```bash
 cd backend
 npm install
+```
 
-Create a .env file based on .env.example:
+Create a `.env` file based on `.env.example`:
 
+```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 PORT=5000
+```
 
 Start the backend:
 
+```bash
 npm run dev
+```
 
 The backend runs locally on:
 
+```text
 http://localhost:5000
-3. Frontend Setup
+```
+
+---
+
+## 3. Frontend Setup
 
 Open another terminal:
 
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
 The frontend runs locally on:
 
+```text
 http://localhost:5173
+```
 
+---
 
-# 🌐🚀 LIVE DEPLOYMENT
+# 🧪 Testing
 
-### 🔗 Live Application
-👉 **https://car-dealership-frontend-gr3c.onrender.com**
+The backend includes automated tests using **Jest** and **Supertest**.
 
-### 🔗 Backend API
-👉 **https://car-dealership-backend-wd20.onrender.com**
+### Run all tests
 
-The application is fully deployed and accessible online.
-
-- **Frontend:** React + TypeScript + Vite → deployed on Render
-- **Backend:** Node.js + Express + TypeScript → deployed on Render
-- **Database:** MongoDB Atlas
-- **Authentication:** JWT
-- **API Communication:** REST API using Axios
-
-### 🚀 Try the Application
-
-**Customer:**  
-Visit the live application and register/login to browse vehicles, search, filter, purchase, and add vehicles to favorites.
-
-**Admin:**  
-Login with an authorized admin account to access the Admin Dashboard and manage the vehicle inventory.
-
-
-
-🧪 Testing
-
-The backend includes automated tests using Jest and Supertest.
-
-Run all tests:
-
+```bash
 npm test -- --runInBand
+```
 
-Run tests with coverage:
+### Run tests with coverage
 
+```bash
 npx jest --coverage --runInBand
-Current Test Results
-Test Suites: 2 passed
-Tests:       36 passed
-Coverage
-Statements: 85.59%
-Branches:   92.68%
-Functions:  92.30%
-Lines:      84.88%
-🏗️ Production Build
-Frontend
+```
+
+### Current Test Results
+
+- **Test Suites:** 2 passed
+- **Tests:** 36 passed
+
+### Coverage
+
+| Metric | Coverage |
+|---|---:|
+| Statements | 85.59% |
+| Branches | 92.68% |
+| Functions | 92.30% |
+| Lines | 84.88% |
+
+---
+
+# 🏗️ Production Build
+
+## Frontend
+
+```bash
 cd frontend
 npm run build
+```
 
 The production build is generated in:
 
+```text
 frontend/dist/
-🔒 Environment Variables
+```
 
-Never commit the real .env file.
+---
+
+# 🔒 Environment Variables
+
+Never commit the real `.env` file.
 
 Use:
 
+```text
 backend/.env.example
+```
 
 as the template.
 
 Required variables:
 
+```env
 MONGO_URI=
 JWT_SECRET=
 PORT=5000
+```
 
-The .env file is excluded from Git using .gitignore.
+The `.env` file is excluded from Git using `.gitignore`.
 
-📸 Application
-Customer Vehicle Page
+---
+
+# 📸 Application
+
+## 👤 Customer Vehicle Page
 
 The customer interface provides:
 
-Vehicle browsing
-Vehicle images
-Search by make/model
-Category filtering
-Maximum price filtering
-Price display
-Stock information
-Favorites
-Purchase functionality
-Responsive vehicle cards
-❤️ Favorites Page
+- Vehicle browsing
+- Vehicle images
+- Search by make/model
+- Category filtering
+- Maximum price filtering
+- Price display
+- Stock information
+- Favorites
+- Purchase functionality
+- Responsive vehicle cards
+
+---
+
+## ❤️ Favorites Page
 
 Customers can:
 
-View saved vehicles
-Remove vehicles from favorites
-Return to the vehicle browsing page
-View vehicle images, price, category and availability
-👑 Admin Dashboard
+- View saved vehicles
+- Remove vehicles from favorites
+- Return to the vehicle browsing page
+- View vehicle images
+- View price, category, and availability
+
+---
+
+## 👑 Admin Dashboard
 
 Administrators can manage dealership inventory through:
 
-Add Vehicle
-Edit Vehicle
-Update vehicle information
-Vehicle image management
-Restock
-Delete
-Inventory quantity management
-Vehicle price management
-Vehicle category management
+- Add Vehicle
+- Edit Vehicle
+- Update vehicle information
+- Vehicle image management
+- Restock
+- Delete
+- Inventory quantity management
+- Vehicle price management
+- Vehicle category management
 
 The dashboard uses organized vehicle cards for easier inventory management.
 
-📊 Vehicle Information
+---
+
+# 📊 Vehicle Information
 
 Each vehicle contains:
 
+```text
 Vehicle
 │
 ├── Make
@@ -416,31 +524,40 @@ Vehicle
 ├── Price
 ├── Quantity
 └── Image URL
-🎯 Future Improvements
+```
+
+---
+
+# 🎯 Future Improvements
 
 Possible future enhancements include:
 
-Pagination
-User purchase history
-Admin analytics dashboard
-Advanced vehicle sorting
-Payment integration
-Email notifications
-Vehicle comparison
-Advanced vehicle details page
-Cloud image storage
-Order management
-Customer reviews and ratings
-Sales analytics
-Admin inventory statistics
-👩‍💻 Author
+- Pagination
+- User purchase history
+- Admin analytics dashboard
+- Advanced vehicle sorting
+- Payment integration
+- Email notifications
+- Vehicle comparison
+- Advanced vehicle details page
+- Cloud image storage
+- Order management
+- Customer reviews and ratings
+- Sales analytics
+- Admin inventory statistics
 
-Sneha Andole
+---
 
-GitHub:
+# 👩‍💻 Author
 
-https://github.com/AndoleSneha
+**Sneha Andole**
 
-📄 License
+### GitHub
+
+👉 [**AndoleSneha**](https://github.com/AndoleSneha)
+
+---
+
+# 📄 License
 
 This project is created for educational and portfolio purposes.
