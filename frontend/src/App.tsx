@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import AdminDashboard from "./AdminDashboard";
+import Favorites from "./pages/Favorites";
 
 interface Vehicle {
   _id: string;
@@ -16,6 +17,9 @@ interface User {
   role: "user" | "admin";
 }
 
+const API_URL =
+  "https://car-dealership-backend-wd20.onrender.com";
+
 function App() {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
@@ -25,6 +29,10 @@ function App() {
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(
+    []
+  );
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [maxPrice, setMaxPrice] = useState("");
@@ -33,6 +41,7 @@ function App() {
   const [error, setError] = useState("");
 
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const [showRegister, setShowRegister] = useState(false);
 
@@ -103,7 +112,7 @@ function App() {
       setAuthLoading(true);
 
       const response = await fetch(
-        "https://car-dealership-backend-wd20.onrender.com/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -124,6 +133,7 @@ function App() {
       }
 
       localStorage.setItem("token", data.token);
+
       setToken(data.token);
       setLoginPassword("");
       setMessage("Login successful!");
@@ -156,7 +166,7 @@ function App() {
       setAuthLoading(true);
 
       const response = await fetch(
-        "https://car-dealership-backend-wd20.onrender.com/api/auth/register",
+        `${API_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -205,9 +215,12 @@ function App() {
 
     setToken(null);
     setUser(null);
+
     setShowAdmin(false);
+    setShowFavorites(false);
 
     setVehicles([]);
+    setFavoriteIds([]);
 
     setSearch("");
     setCategory("All");
@@ -226,7 +239,7 @@ function App() {
       setError("");
 
       const response = await fetch(
-        "https://car-dealership-backend-wd20.onrender.com/api/vehicles"
+        `${API_URL}/api/vehicles`
       );
 
       if (!response.ok) {
@@ -242,11 +255,149 @@ function App() {
     }
   };
 
+  /* =========================================
+     LOAD FAVORITES
+  ========================================= */
+
+  const loadFavorites = async () => {
+    const currentToken =
+      localStorage.getItem("token");
+
+    if (!currentToken) {
+      setFavoriteIds([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/favorites`,
+        {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Unable to load favorites");
+      }
+
+      const data = await response.json();
+
+      const ids = data
+        .filter(
+          (favorite: any) =>
+            favorite.vehicle &&
+            favorite.vehicle._id
+        )
+        .map(
+          (favorite: any) =>
+            favorite.vehicle._id
+        );
+
+      setFavoriteIds(ids);
+    } catch (err) {
+      console.error("Favorites error:", err);
+    }
+  };
+
   useEffect(() => {
     if (token) {
       loadVehicles();
+      loadFavorites();
     }
   }, [token]);
+
+  /* =========================================
+     TOGGLE FAVORITE
+  ========================================= */
+
+  const handleFavorite = async (
+    vehicleId: string
+  ) => {
+    const currentToken =
+      localStorage.getItem("token");
+
+    if (!currentToken) {
+      setError("Please login first");
+      return;
+    }
+
+    const isFavorite =
+      favoriteIds.includes(vehicleId);
+
+    try {
+      setError("");
+      setMessage("");
+
+      if (isFavorite) {
+        const response = await fetch(
+          `${API_URL}/api/favorites/${vehicleId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(
+            data.message ||
+              "Unable to remove favorite"
+          );
+          return;
+        }
+
+        setFavoriteIds((currentIds) =>
+          currentIds.filter(
+            (id) => id !== vehicleId
+          )
+        );
+
+        setMessage(
+          "Removed from favorites"
+        );
+      } else {
+        const response = await fetch(
+          `${API_URL}/api/favorites/${vehicleId}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(
+            data.message ||
+              "Unable to add favorite"
+          );
+          return;
+        }
+
+        setFavoriteIds((currentIds) => [
+          ...currentIds,
+          vehicleId,
+        ]);
+
+        setMessage(
+          "Added to favorites ❤️"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setError(
+        "Unable to connect to the server"
+      );
+    }
+  };
 
   /* =========================================
      PURCHASE
@@ -266,7 +417,7 @@ function App() {
       }
 
       const response = await fetch(
-        `https://car-dealership-backend-wd20.onrender.com/api/vehicles/${id}/purchase`,
+        `${API_URL}/api/vehicles/${id}/purchase`,
         {
           method: "POST",
           headers: {
@@ -293,13 +444,15 @@ function App() {
           vehicle._id === id
             ? {
                 ...vehicle,
-                quantity: data.vehicle.quantity,
+                quantity:
+                  data.vehicle.quantity,
               }
             : vehicle
         )
       );
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to connect to the server"
       );
@@ -325,8 +478,8 @@ function App() {
      FILTER
   ========================================= */
 
-  const filteredVehicles = vehicles.filter(
-    (vehicle) => {
+  const filteredVehicles =
+    vehicles.filter((vehicle) => {
       const searchText =
         search.toLowerCase().trim();
 
@@ -346,29 +499,24 @@ function App() {
 
       const matchesPrice =
         maxPrice.trim() === "" ||
-        (
-          Number.isFinite(priceLimit) &&
-          vehicle.price <= priceLimit
-        );
+        (Number.isFinite(priceLimit) &&
+          vehicle.price <= priceLimit);
 
       return (
         matchesSearch &&
         matchesCategory &&
         matchesPrice
       );
-    }
-  );
+    });
 
   /* =========================================
-     LOGIN PAGE
+     LOGIN / REGISTER PAGE
   ========================================= */
 
   if (!token) {
     return (
       <div className="login-page">
-
         <div className="login-card">
-
           <div className="login-logo">
             🚗
           </div>
@@ -403,7 +551,9 @@ function App() {
                   value={loginEmail}
                   placeholder="Enter your email"
                   onChange={(e) =>
-                    setLoginEmail(e.target.value)
+                    setLoginEmail(
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -416,7 +566,9 @@ function App() {
                   value={loginPassword}
                   placeholder="Enter your password"
                   onChange={(e) =>
-                    setLoginPassword(e.target.value)
+                    setLoginPassword(
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -469,7 +621,9 @@ function App() {
                   value={registerName}
                   placeholder="Enter your name"
                   onChange={(e) =>
-                    setRegisterName(e.target.value)
+                    setRegisterName(
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -482,7 +636,9 @@ function App() {
                   value={registerEmail}
                   placeholder="Enter your email"
                   onChange={(e) =>
-                    setRegisterEmail(e.target.value)
+                    setRegisterEmail(
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -495,7 +651,9 @@ function App() {
                   value={registerPassword}
                   placeholder="Enter your password"
                   onChange={(e) =>
-                    setRegisterPassword(e.target.value)
+                    setRegisterPassword(
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -527,10 +685,22 @@ function App() {
               </p>
             </>
           )}
-
         </div>
-
       </div>
+    );
+  }
+
+  /* =========================================
+     FAVORITES PAGE
+  ========================================= */
+
+  if (showFavorites) {
+    return (
+      <Favorites
+        onBack={() =>
+          setShowFavorites(false)
+        }
+      />
     );
   }
 
@@ -545,23 +715,37 @@ function App() {
     return (
       <AdminDashboard
         token={token}
-        onBack={() => setShowAdmin(false)}
+        onBack={() =>
+          setShowAdmin(false)
+        }
       />
     );
   }
 
   /* =========================================
-     VEHICLE PAGE
+     MAIN VEHICLE PAGE
   ========================================= */
 
   return (
     <div className="app">
-
       <nav className="navbar">
-
         <h1>Car Dealership</h1>
 
         <div className="navbar-actions">
+
+          {/* FAVORITES */}
+
+          <button
+            type="button"
+            className="admin-nav-button"
+            onClick={() =>
+              setShowFavorites(true)
+            }
+          >
+            ❤️ Favorites
+          </button>
+
+          {/* ADMIN */}
 
           {user?.role === "admin" && (
             <button
@@ -575,6 +759,8 @@ function App() {
             </button>
           )}
 
+          {/* LOGOUT */}
+
           <button
             type="button"
             className="logout-button"
@@ -584,13 +770,11 @@ function App() {
           </button>
 
         </div>
-
       </nav>
 
       <main className="container">
 
         <div className="page-heading">
-
           <div>
             <h2>
               Available Vehicles
@@ -600,7 +784,6 @@ function App() {
               Find your perfect vehicle
             </p>
           </div>
-
         </div>
 
         {/* FILTERS */}
@@ -608,7 +791,6 @@ function App() {
         <div className="filter-box">
 
           <div className="filter-group">
-
             <label>
               Search
             </label>
@@ -621,11 +803,9 @@ function App() {
                 setSearch(e.target.value)
               }
             />
-
           </div>
 
           <div className="filter-group">
-
             <label>
               Category
             </label>
@@ -636,7 +816,6 @@ function App() {
                 setCategory(e.target.value)
               }
             >
-
               {categories.map((item) => (
                 <option
                   key={item}
@@ -645,13 +824,10 @@ function App() {
                   {item}
                 </option>
               ))}
-
             </select>
-
           </div>
 
           <div className="filter-group">
-
             <label>
               Maximum Price
             </label>
@@ -662,10 +838,11 @@ function App() {
               placeholder="Enter maximum price"
               value={maxPrice}
               onChange={(e) =>
-                setMaxPrice(e.target.value)
+                setMaxPrice(
+                  e.target.value
+                )
               }
             />
-
           </div>
 
           <button
@@ -700,7 +877,6 @@ function App() {
 
         {filteredVehicles.length === 0 &&
         !error ? (
-
           <div className="no-results">
 
             <h3>
@@ -713,90 +889,124 @@ function App() {
             </p>
 
           </div>
-
         ) : (
-
           <div className="vehicle-grid">
 
             {filteredVehicles.map(
-              (vehicle) => (
+              (vehicle) => {
 
-                <div
-                  className="vehicle-card"
-                  key={vehicle._id}
-                >
+                const isFavorite =
+                  favoriteIds.includes(
+                    vehicle._id
+                  );
 
-                  <div className="vehicle-icon">
-                    🚗
-                  </div>
+                return (
+                  <div
+                    className="vehicle-card"
+                    key={vehicle._id}
+                  >
 
-                  <h3>
-                    {vehicle.make}{" "}
-                    {vehicle.model}
-                  </h3>
+                    {/* CAR ICON + FAVORITE */}
 
-                  <div className="vehicle-details">
+                    <div className="vehicle-card-top">
 
-                    <p>
-                      <strong>
-                        Year:
-                      </strong>{" "}
-                      {vehicle.year}
-                    </p>
+                      <div className="vehicle-icon">
+                        🚗
+                      </div>
 
-                    <p>
-                      <strong>
-                        Category:
-                      </strong>{" "}
-                      {vehicle.category}
-                    </p>
-
-                    <p className="vehicle-price">
-                      ₹
-                      {vehicle.price.toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
-
-                    <p>
-                      <strong>
-                        Available:
-                      </strong>{" "}
-
-                      <span
-                        className={
-                          vehicle.quantity === 0
-                            ? "out-stock"
-                            : vehicle.quantity <= 2
-                            ? "low-stock"
-                            : "in-stock"
+                      <button
+                        type="button"
+                        className={`favorite-button ${
+                          isFavorite
+                            ? "favorite-active"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleFavorite(
+                            vehicle._id
+                          )
+                        }
+                        title={
+                          isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"
                         }
                       >
-                        {vehicle.quantity}
-                      </span>
-                    </p>
+                        {isFavorite
+                          ? "❤️"
+                          : "♡"}
+                      </button>
+
+                    </div>
+
+                    <h3>
+                      {vehicle.make}{" "}
+                      {vehicle.model}
+                    </h3>
+
+                    <div className="vehicle-details">
+
+                      <p>
+                        <strong>
+                          Year:
+                        </strong>{" "}
+                        {vehicle.year}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Category:
+                        </strong>{" "}
+                        {vehicle.category}
+                      </p>
+
+                      <p className="vehicle-price">
+                        ₹
+                        {vehicle.price.toLocaleString(
+                          "en-IN"
+                        )}
+                      </p>
+
+                      <p>
+                        <strong>
+                          Available:
+                        </strong>{" "}
+
+                        <span
+                          className={
+                            vehicle.quantity === 0
+                              ? "out-stock"
+                              : vehicle.quantity <= 2
+                              ? "low-stock"
+                              : "in-stock"
+                          }
+                        >
+                          {vehicle.quantity}
+                        </span>
+                      </p>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      className="purchase-button"
+                      disabled={
+                        vehicle.quantity === 0
+                      }
+                      onClick={() =>
+                        handlePurchase(
+                          vehicle._id
+                        )
+                      }
+                    >
+                      {vehicle.quantity === 0
+                        ? "Out of Stock"
+                        : "Purchase"}
+                    </button>
 
                   </div>
-
-                  <button
-                    type="button"
-                    className="purchase-button"
-                    disabled={
-                      vehicle.quantity === 0
-                    }
-                    onClick={() =>
-                      handlePurchase(
-                        vehicle._id
-                      )
-                    }
-                  >
-                    {vehicle.quantity === 0
-                      ? "Out of Stock"
-                      : "Purchase"}
-                  </button>
-
-                </div>
-              )
+                );
+              }
             )}
 
           </div>
@@ -809,7 +1019,6 @@ function App() {
         </p>
 
       </main>
-
     </div>
   );
 }

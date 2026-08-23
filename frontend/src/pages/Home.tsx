@@ -12,25 +12,99 @@ interface Vehicle {
   quantity: number;
 }
 
+const API_URL =
+  "https://car-dealership-backend-wd20.onrender.com";
+
 const Home = () => {
   const navigate = useNavigate();
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [message, setMessage] = useState("");
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchVehicles();
+    fetchFavorites();
   }, []);
 
   const fetchVehicles = async () => {
     try {
       const response = await axios.get(
-        "https://car-dealership-backend-wd20.onrender.com/api/vehicles"
+        `${API_URL}/api/vehicles`
       );
 
       setVehicles(response.data.vehicles);
     } catch (error) {
       setMessage("Unable to load vehicles");
+    }
+  };
+
+  const fetchFavorites = async () => {
+    if (!token) return;
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/favorites`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const ids = response.data.map(
+        (favorite: { vehicle: Vehicle }) =>
+          favorite.vehicle._id
+      );
+
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.error("Unable to load favorites");
+    }
+  };
+
+  const toggleFavorite = async (vehicleId: string) => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const isFavorite = favoriteIds.includes(vehicleId);
+
+    try {
+      if (isFavorite) {
+        await axios.delete(
+          `${API_URL}/api/favorites/${vehicleId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setFavoriteIds((prev) =>
+          prev.filter((id) => id !== vehicleId)
+        );
+      } else {
+        await axios.post(
+          `${API_URL}/api/favorites/${vehicleId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setFavoriteIds((prev) => [
+          ...prev,
+          vehicleId,
+        ]);
+      }
+    } catch (error) {
+      setMessage("Unable to update favorite");
     }
   };
 
@@ -40,57 +114,118 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="app">
       <nav className="navbar">
-        <h2>Car Dealership</h2>
+        <h1>Car Dealership</h1>
 
-        <div>
-          <button onClick={handleLogout}>
+        <div className="navbar-actions">
+          <button
+            className="admin-nav-button"
+            onClick={() => navigate("/favorites")}
+          >
+            ❤️ Favorites
+          </button>
+
+          <button
+            className="logout-button"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </div>
       </nav>
 
-      <main className="home-container">
-        <h1>Available Vehicles</h1>
+      <main className="container">
+        <div className="page-heading">
+          <h2>Available Vehicles</h2>
+          <p>
+            Find your perfect vehicle from our collection.
+          </p>
+        </div>
 
-        {message && <p>{message}</p>}
+        {message && (
+          <p className="error-message">{message}</p>
+        )}
 
         <div className="vehicle-grid">
-          {vehicles.map((vehicle) => (
-            <div
-              className="vehicle-card"
-              key={vehicle._id}
-            >
-              <h2>
-                {vehicle.make} {vehicle.model}
-              </h2>
+          {vehicles.map((vehicle) => {
+            const isFavorite = favoriteIds.includes(
+              vehicle._id
+            );
 
-              <p>
-                <strong>Year:</strong>{" "}
-                {vehicle.year}
-              </p>
+            return (
+              <div
+                className="vehicle-card"
+                key={vehicle._id}
+              >
+                <div className="vehicle-card-top">
+                  <div className="vehicle-icon">
+                    🚗
+                  </div>
 
-              <p>
-                <strong>Category:</strong>{" "}
-                {vehicle.category}
-              </p>
+                  <button
+                    className={`favorite-button ${
+                      isFavorite ? "favorite-active" : ""
+                    }`}
+                    onClick={() =>
+                      toggleFavorite(vehicle._id)
+                    }
+                    title={
+                      isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    {isFavorite ? "❤️" : "♡"}
+                  </button>
+                </div>
 
-              <p>
-                <strong>Price:</strong> ₹
-                {vehicle.price}
-              </p>
+                <h3>
+                  {vehicle.make} {vehicle.model}
+                </h3>
 
-              <p>
-                <strong>Quantity:</strong>{" "}
-                {vehicle.quantity}
-              </p>
+                <div className="vehicle-details">
+                  <p>
+                    <strong>Year:</strong>{" "}
+                    {vehicle.year}
+                  </p>
 
-              <button>
-                Purchase
-              </button>
-            </div>
-          ))}
+                  <p>
+                    <strong>Category:</strong>{" "}
+                    {vehicle.category}
+                  </p>
+
+                  <p className="vehicle-price">
+                    ₹{vehicle.price.toLocaleString("en-IN")}
+                  </p>
+
+                  <p>
+                    <strong>Quantity:</strong>{" "}
+                    <span
+                      className={
+                        vehicle.quantity === 0
+                          ? "out-stock"
+                          : vehicle.quantity <= 3
+                          ? "low-stock"
+                          : "in-stock"
+                      }
+                    >
+                      {vehicle.quantity}
+                    </span>
+                  </p>
+                </div>
+
+                <button
+                  className="purchase-button"
+                  disabled={vehicle.quantity === 0}
+                >
+                  {vehicle.quantity === 0
+                    ? "Out of Stock"
+                    : "Purchase"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>

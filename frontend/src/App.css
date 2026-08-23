@@ -957,3 +957,41 @@ select {
     width: 100%;
   }
 }
+
+/* =========================================
+   FAVORITES
+========================================= */
+
+.vehicle-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.favorite-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background: white;
+  color: #9ca3af;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.favorite-button:hover {
+  transform: scale(1.08);
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.favorite-active {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
